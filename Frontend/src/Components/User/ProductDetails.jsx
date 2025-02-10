@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import SizeSelector from "./Shared/SizeSelector";
 import ImageZoom from "./Shared/ImageZoom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import axiosInstance from "@/Utils/AxiosConfig";
-import { sizzle } from "@cloudinary/url-gen/qualifiers/artisticFilter";
 
-export default function ProductDetails({ product }) {
+export default function ProductDetails({ product, isWishList, setreload }) {
   const userData = useSelector((store) => store.user.userDetails);
+
   const navigate = useNavigate();
+  const { id } = useParams();
+  const productId = id;
   const [isExist, setIsExist] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedZoomImage, setSelectedZoomImage] = useState("");
@@ -18,6 +20,9 @@ export default function ProductDetails({ product }) {
   const scrollContainerRef = useRef(null);
   const [toggle, setToggle] = useState(false);
   const [error, setError] = useState({});
+  const [averageRating, setAverageRating] = useState(0);
+
+  ////////////////////////////////////// handle AddTo Cart ///////////////////////////////
 
   async function handleAddToCart() {
     if (!selectedSize) {
@@ -50,6 +55,8 @@ export default function ProductDetails({ product }) {
     }
   }
 
+  ////////////////////////////////////// check Cart Status ///////////////////////////////
+
   async function checkCartStatus() {
     if (!selectedSize) return;
 
@@ -67,8 +74,51 @@ export default function ProductDetails({ product }) {
     }
   }
 
+  ////////////////////////////////////// fetch Average Rating ///////////////////////////////
+
+  async function fetchAverageRating() {
+    try {
+      const response = await axiosInstance.get(
+        `/user/average-rating/${productId}`
+      );
+
+      setAverageRating(response.data.averageRating);
+    } catch (error) {
+      console.error("Error fetching average rating:", error);
+    }
+  }
+
+  ////////////////////////////////////// handle Wishlist ///////////////////////////////
+
+  async function handleWishlist() {
+    try {
+      const response = await axiosInstance.post("/user/wishlist", {
+        productId: product._id,
+        userId: userData._id,
+      });
+      setreload(true);
+      toast.success(response.data.message);
+    } catch (error) {
+      console.error("Error handling wishlist:", error);
+    }
+  }
+
+  ////////////////////////////////////// handle Remove Wishlist ///////////////////////////////
+
+  async function handleRemoveWishlist() {
+    try {
+      const response = await axiosInstance.delete(
+        `/user/wishlist/${productId}/${userData._id}`
+      );
+      setreload(true);
+      toast.success(response.data.message);
+    } catch (error) {
+      console.error("Error handling remove wishlist:", error);
+    }
+  }
   useEffect(() => {
     checkCartStatus();
+    fetchAverageRating();
     const handleScroll = () => {
       if (!scrollContainerRef.current) return;
 
@@ -87,7 +137,7 @@ export default function ProductDetails({ product }) {
       container.addEventListener("scroll", handleScroll);
       return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, [selectedSize]);
+  }, [selectedSize, product._id, checkCartStatus]); // Added checkCartStatus to dependencies
 
   return (
     <div className="min-h-screen bg-[#f4ede3] flex flex-col lg:flex-row">
@@ -155,11 +205,47 @@ export default function ProductDetails({ product }) {
                 </span>
               </div>
             </div>
-            <button
-              className="text-[#8b5d4b] hover:opacity-75 transition-opacity"
-              aria-label="Add to wishlist">
-              <Heart className="w-6 h-6" />
-            </button>
+            <div>
+              {isWishList ? (
+                <button
+                  onClick={() => {
+                    handleRemoveWishlist(); // Remove from wishlist
+                  }}
+                  className="transition-opacity">
+                  <Heart className="w-6 h-6 fill-[#733519] text-[#733519]" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    handleWishlist(); // Add to wishlist
+                  }}
+                  className="transition-opacity">
+                  <Heart className="w-6 h-6 fill-none text-[#733519] stroke-[#733519]" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Average Rating */}
+          <div className="flex items-center mt-4 mb-6">
+            <div className="flex">
+              {[...Array(5)].map((_, index) => (
+                <Star
+                  key={index}
+                  className={`w-4 h-4 ${
+                    index < Math.round(averageRating)
+                      ? "text-[#955238] fill-[#733519]"
+                      : "text-[#ffffff]"
+                  }`}
+                  fill="currentColor"
+                  stroke="#733519"
+                  strokeWidth="1"
+                />
+              ))}
+            </div>
+            <span className="ml-2 text-[#733519] text-sm font-Futura-Light">
+              ({averageRating}/5)
+            </span>
           </div>
 
           {/* Size Selector */}
@@ -177,11 +263,19 @@ export default function ProductDetails({ product }) {
           <div className="grid grid-cols-2 gap-4 mt-4">
             <button
               onClick={isExist ? () => navigate("/cart") : handleAddToCart}
-              className="w-full py-4 font-Futura-Light font-thin text-sm rounded bg-[#955238] hover:bg-[#713d28] text-white transition-colors">
-              {isExist ? "Go to Cart" : "Add to Cart"}
+              className="w-full py-4 font-Futura-Light font-thin text-sm rounded bg-[#955238] hover:bg-[#713d28] text-white transition-colors"
+              disabled={product.stocks === 0} // Disable button if out of stock
+            >
+              {product.stocks === 0
+                ? "Out of Stock"
+                : isExist
+                ? "Go to Cart"
+                : "Add to Cart"}
             </button>
-            <button className="w-full py-4 font-Futura-Light font-thin text-sm bg-[#955238] hover:bg-[#713d28] text-white transition-colors rounded">
-              Buy it now
+            <button
+              className="w-full py-4 font-Futura-Light font-thin text-sm bg-[#955238] hover:bg-[#713d28] text-white transition-colors rounded"
+              disabled={product.stocks === 0}>
+              {product.stocks !== 0 ? "  Buy it now" : "out of stock"}
             </button>
           </div>
 

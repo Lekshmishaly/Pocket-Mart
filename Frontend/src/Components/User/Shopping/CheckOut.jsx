@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import VerifiedModal from "./VerifiedModal";
 
-function CheckoutPage() {
+function CheckOut() {
   const userData = useSelector((store) => store.user.userDetails);
   const [selectAddressCheckout, setSelectedAddressCheckout] = useState({});
   const [selectPayment, setSelectPayment] = useState("");
@@ -246,35 +246,38 @@ function CheckoutPage() {
           <div className=" max-w-xl mt-8 me-28  ms-7">
             <div className="space-y-6">
               {Array.isArray(cart.items) &&
-                cart.items.map((item, i) => (
-                  <>
-                    {" "}
-                    <div key={i} className="flex items-start space-x-4">
-                      <div className="relative">
-                        <img
-                          src={item.productId.images[0]}
-                          alt="Givah Jacket Set"
-                          className="w-16 h-20 object-cover"
-                        />
-                        <span className="absolute -top-2 -right-2 bg-gray-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">
-                          {item.qty}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-sm font-Futura-Light text-gray-900">
-                          {item.productId.name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {" "}
-                          Size: {item.size}
-                        </p>
-                      </div>
-                      <p className="text-sm font-Futura-Light ">
-                        ₹{item.price}
-                      </p>
-                    </div>
-                  </>
-                ))}
+                cart.items.map(
+                  (item, i) =>
+                    item.stock !== 0 && (
+                      <>
+                        {" "}
+                        <div key={i} className="flex items-start space-x-4">
+                          <div className="relative">
+                            <img
+                              src={item.productId.images[0]}
+                              alt="Givah Jacket Set"
+                              className="w-16 h-20 object-cover"
+                            />
+                            <span className="absolute -top-2 -right-2 bg-gray-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">
+                              {item.qty}
+                            </span>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-sm font-Futura-Light text-gray-900">
+                              {item.productId.name}
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                              {" "}
+                              Size: {item.size}
+                            </p>
+                          </div>
+                          <p className="text-sm font-Futura-Light ">
+                            ₹{item.price}
+                          </p>
+                        </div>
+                      </>
+                    )
+                )}
 
               <div className="flex space-x-4">
                 <input
@@ -318,4 +321,4 @@ function CheckoutPage() {
   );
 }
 
-export default CheckoutPage;
+export default CheckOut;

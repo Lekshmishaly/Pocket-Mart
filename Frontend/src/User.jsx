@@ -13,6 +13,7 @@ import CartPage from "./pages/User/CartPage";
 import Header from "./Components/User/Shared/Header";
 import Footer from "./Components/User/Shared/Footer";
 import CheckOutPage from "./pages/User/CheckOutPage";
+import RatingPage from "./Components/User/Shared/RatingPage";
 
 function User() {
   return (
@@ -28,8 +29,12 @@ function User() {
       />
       <Route path="/forget-password" element={<ForgetPassword />} />
       <Route path="/" element={<HomePage />} />
+
+      <Route path="/shop-page/:search" element={<ShopPage />} />
       <Route path="/shop-page" element={<ShopPage />} />
+
       <Route path="/product-Page/:id" element={<ProductPage />} />
+      <Route path="/rate/:id" element={<RatingPage />} />
       <Route
         path="/profile/*"
         element={

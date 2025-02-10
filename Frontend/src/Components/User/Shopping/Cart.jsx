@@ -11,6 +11,7 @@ function Cart() {
   const [reload, setReload] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
+  const [stockStatus, setStockStatus] = useState({});
 
   /////////////////////////// //Fetch Cart// ///////////////////////////
 
@@ -25,6 +26,14 @@ function Cart() {
       };
       setCartItems(cartData.items || []);
       setSubtotal(cartData.totalCartValue || 0);
+
+      const stockChecks = {};
+      cartData.items.forEach((item) => {
+        stockChecks[item._id] = item.qty <= (item.productId.stock || 0);
+      });
+
+      console.log("stock ", stockChecks);
+      setStockStatus(stockChecks);
     } catch (error) {
       console.error("Error fetching cart:", error);
     }
@@ -50,7 +59,7 @@ function Cart() {
       const response = await axiosInstance.patch(
         `/user/cart/min/${item._id}/${userData._id}`
       );
-      console.log(response.data);
+      // console.log(response.data);
       setReload(true);
     } catch (err) {
       if (err.response) {
@@ -67,7 +76,7 @@ function Cart() {
       const response = await axiosInstance.patch(
         `/user/cart/add/${item._id}/${userData._id}`
       );
-      console.log(response.data);
+      // console.log(response.data);
       setReload(true);
     } catch (err) {
       if (err.response) {
@@ -80,7 +89,7 @@ function Cart() {
   useEffect(() => {
     fetchCart();
     setReload(false);
-  }, [reload]);
+  }, [reload, userData]); // Added userData to dependencies
   return (
     <div className="mt-24 bg-[#f4ede3]">
       <div className="max-w-5xl mx-auto px-2 sm:px-4 lg:px-6 py-6">
@@ -118,15 +127,31 @@ function Cart() {
                   <tr key={i} className="align-top border-t border-[#d3d2d2]">
                     <td className="py-4">
                       <div className="flex gap-6">
-                        <img
-                          src={item.productId.images[0]}
-                          alt={item.productId.name}
-                          className="w-[122px] h-[182px] object-cover "
-                        />
+                        <div className="relative">
+                          <img
+                            src={item.productId.images[0] || "/placeholder.svg"}
+                            alt={item.productId.name}
+                            className={`w-[122px] h-[182px] object-cover ${
+                              stockStatus[item._id] ? "opacity-50" : ""
+                            }`}
+                          />
+                          {stockStatus[item._id] && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="bg-black bg-opacity-50 text-white px-2 py-1 text-sm rounded">
+                                Out of Stock
+                              </span>
+                            </div>
+                          )}
+                        </div>
                         <div className="">
                           <h3 className="text-sm font-Futura-Light text-[#8b5d4b]">
                             {item.productId.name}
                           </h3>
+                          {stockStatus[item._id] && (
+                            <p className="text-red-500 text-sm mt-2">
+                              Out of Stock
+                            </p>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -155,7 +180,12 @@ function Cart() {
                         </span>
                         <button
                           onClick={() => handelPlus(item)}
-                          className="text-[#8b5d4b] text-sm font-Futura-Light hover:text-[#6d483a] transition-colors duration-200">
+                          disabled={item.stock === 0}
+                          className={`text-[#8b5d4b] text-sm font-Futura-Light ${
+                            item.stock !== 0
+                              ? "hover:text-[#6d483a] transition-colors duration-200"
+                              : "opacity-50 cursor-not-allowed"
+                          }`}>
                           +
                         </button>
                       </div>
@@ -197,13 +227,20 @@ function Cart() {
               </p>
             </div>
             <div className="flex flex-col items-center">
-              <p className="text-sm font-Futura-Light  opacity-80  mb-2">
-                INR {subtotal ? subtotal.toFixed(2) : 0}
-              </p>
+              {subtotal !== 0 && (
+                <p className="text-sm font-Futura-Light  opacity-80  mb-2">
+                  INR {subtotal ? subtotal.toFixed(2) : 0}
+                </p>
+              )}
               <button
                 onClick={() => navigate("/checkout")}
-                className="text-sm font-Futura-Light border-b border-white opacity-80 ">
-                Checkout →
+                disabled={subtotal === 0}
+                className={`text-sm font-Futura-Light border-b border-white ${
+                  subtotal === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : "opacity-80 hover:opacity-100"
+                }`}>
+                {subtotal === 0 ? "All items are out of stock" : "Checkout →"}
               </button>
             </div>
           </div>

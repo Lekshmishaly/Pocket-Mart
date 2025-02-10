@@ -48,7 +48,7 @@ function Signup() {
       setError
     );
 
-    // console.log("Validation Result:", validate);
+    // ("Validation Result:", validate);
     if (validate) {
       if (userPassword == userConfirmPassword) {
         try {

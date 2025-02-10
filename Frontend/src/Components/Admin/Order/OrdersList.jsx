@@ -17,7 +17,7 @@ function OrdersPage() {
   async function fetchOrderDetails() {
     try {
       const response = await axiosInstance.get("/admin/order");
-      console.log("Fetched Order", response.data.orderData);
+      // console.log("Fetched Order", response.data.orderData);
       setOrders(response.data.orderData);
     } catch (error) {
       console.error("Error fetching Order Details:", error);

@@ -134,8 +134,8 @@ function VerifiedModal({ isModalOpen, onExit, order }) {
               </ModalBody>
               <ModalFooter>
                 <Button
-                  className="bg-[#733519] text-[#eae0d3]"
-                  onPress={onExit}>
+                  className="bg-[#733519] text-[#eae0d3] hover:bg-[#af562c]"
+                  onClick={() => navigate("/shop-page")}>
                   Continue Shopping
                 </Button>
                 <Button

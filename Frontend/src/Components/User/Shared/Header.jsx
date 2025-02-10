@@ -19,7 +19,9 @@ export default function Header({ name }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isScrolled, setIsScrolled] = useState(false); // For background color
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [searchValue, setSeachValue] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -38,24 +40,26 @@ export default function Header({ name }) {
       console.log(error);
     }
   }
+
+  function handleSearch() {
+    navigate(`/shop-page/${searchValue}`);
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const scrollHeight = document.documentElement.scrollHeight;
       const clientHeight = document.documentElement.clientHeight;
 
-      // Calculate scroll position percentage
       const scrollPercentage =
         (currentScrollY / (scrollHeight - clientHeight)) * 100;
 
-      // Update visibility based on scroll direction
       if (currentScrollY > lastScrollY && currentScrollY > 0) {
         setIsVisible(false);
       } else {
         setIsVisible(true);
       }
 
-      // Update background color if scrolled more than 5%
       setIsScrolled(scrollPercentage > 5);
 
       setLastScrollY(currentScrollY);
@@ -69,7 +73,7 @@ export default function Header({ name }) {
 
   return (
     <header
-      className={`w-screen pt-8 px-4 sm:px-8 lg:px-16 z-50 transition-all duration-500 ${
+      className={`w-screen pt-8 px-4 sm:px-8 lg:px-16 z-50 transition-all duration-500  ${
         isVisible && !isHomePage ? "translate-y-0" : ""
       } ${
         isScrolled && !isHomePage
@@ -107,7 +111,7 @@ export default function Header({ name }) {
           </div>
 
           {/* Right side - Navigation Icons */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 relative">
             <span
               onClick={() => navigate("/shop-page")}
               className="cursor-pointer text-sm text-[#312f2d] font-thin leading-relaxed font-Futura-Light, sans-serif hover:text-gray-700 hidden sm:inline-block">
@@ -146,7 +150,26 @@ export default function Header({ name }) {
               </Button>
             )}
 
-            <Button variant="ghost" size="sm" aria-label="Search">
+            {isSearchVisible && (
+              <input
+                onChange={(e) => {
+                  setSeachValue(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
+                type="text"
+                placeholder="Search..."
+                className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b5d4b] transition-all duration-300"
+              />
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Search"
+              onClick={() => setIsSearchVisible(!isSearchVisible)}>
               <Search className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>

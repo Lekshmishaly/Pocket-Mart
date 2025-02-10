@@ -95,13 +95,6 @@ export function validateCategory(name, description, setError) {
     error.name = "Category name must not exceed 30 characters.";
   } else if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
     error.name = "Category name can only contain letters and spaces.";
-  } else if (
-    !["Casuals", "Dressy", "Formal", "Party Ware"].some(
-      (category) => category.toLowerCase() === name.trim().toLowerCase()
-    )
-  ) {
-    error.name =
-      "Category name must match one of the following: Casuals, Dressy, Formal, Party Ware.";
   }
 
   if (!description?.trim()) {
@@ -144,13 +137,6 @@ export function validateEditCategory(name, description, setError) {
     error.name = "Category name must not exceed 30 characters.";
   } else if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
     error.name = "Category name can only contain letters and spaces.";
-  } else if (
-    !["Casuals", "Dressy", "Formal", "Party Ware"].some(
-      (category) => category.toLowerCase() === name.trim().toLowerCase()
-    )
-  ) {
-    error.name =
-      "Category name must match one of the following: Casuals, Dressy, Formal, Party Ware.";
   }
 
   if (!description?.trim()) {

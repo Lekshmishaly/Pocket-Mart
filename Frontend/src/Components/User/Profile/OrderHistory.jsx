@@ -16,7 +16,7 @@ function OrderHistory() {
         `/user/fetchorders/${userData._id}`
       );
 
-      console.log("order::::::::>", response.data.orderDetails);
+      // console.log("order::::::::>", response.data.orderDetails);
       setOrders(response.data.orderDetails);
     } catch (error) {
       console.error("Error fetching Order:", error);

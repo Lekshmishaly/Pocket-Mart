@@ -1,7 +1,11 @@
 const Order = require("../../Models/orderModel");
 const Cart = require("../../Models/cartModel");
+const {
+  manageStock,
+  manageStockAfterCancel,
+} = require("../../Utils/manageProductStock");
 
-///////////////////////// create Order /////////////////////////
+////////////////////////////////// create Order //////////////////////////////
 
 async function addOrder(req, res) {
   try {
@@ -45,6 +49,8 @@ async function addOrder(req, res) {
 
     await order.save();
 
+    manageStock(products);
+
     return res
       .status(200)
       .json({ success: true, message: "Order Placed", order });
@@ -57,7 +63,7 @@ async function addOrder(req, res) {
   }
 }
 
-///////////////////////// fetch Cart To Checkout /////////////////////////
+/////////////////////////////////////// fetch Cart To Checkout /////////////////////////////
 
 async function fetchCartToCheckout(req, res) {
   try {
@@ -122,7 +128,7 @@ async function fetchCartToCheckout(req, res) {
   }
 }
 
-////////////////////////////// fetch Orders //////////////////////////////
+////////////////////////////////////// fetch Orders //////////////////////////////////
 
 async function fetchOrders(req, res) {
   try {
@@ -153,7 +159,7 @@ async function fetchOrders(req, res) {
   }
 }
 
-////////////////////////////// fetch Order //////////////////////////////
+///////////////////////////////////// fetch Order //////////////////////////////////
 
 async function fetchOrder(req, res) {
   try {
@@ -184,6 +190,8 @@ async function fetchOrder(req, res) {
   }
 }
 
+///////////////////////////////////// order Cancel //////////////////////////////////
+
 async function orderCancel(req, res) {
   try {
     const { order_id, itemId } = req.body;
@@ -199,10 +207,13 @@ async function orderCancel(req, res) {
     order.order_items.forEach((item) => {
       if (item._id.toString() === itemId && item.order_status === "Pending") {
         item.order_status = "Cancelled";
+        manageStockAfterCancel(item);
       }
     });
 
     await order.save();
+
+    manageStockAfterCancel(order.order_items);
 
     return res
       .status(200)

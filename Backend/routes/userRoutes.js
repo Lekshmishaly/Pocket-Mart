@@ -7,6 +7,9 @@ const productController = require("../Controllers/User/productController");
 const addressController = require("../Controllers/User/addressController");
 const cartController = require("../Controllers/User/cartController");
 const orderController = require("../Controllers/User/OrderController");
+const reviewController = require("../Controllers/User/reviewController");
+const categoryController = require("../Controllers/User/categoryController");
+const wishlistController = require("../Controllers/User/wishlistController");
 
 // Rate limiter to prevent abuse
 const resetPasswordLimiter = rateLimit({
@@ -43,7 +46,12 @@ userRoute.post("/googleAuth", userController.googleAuth);
 userRoute.put("/changepassword", userController.changePassword);
 
 //Product controller routes
-userRoute.get("/fetchproductdetails/:limit", productController.fetchProducts);
+userRoute.get("/product/home/:limit", productController.fetchProductsHome);
+userRoute.post(
+  "/fetchproductdetails/:limit/:search?",
+  productController.fetchProducts
+);
+
 userRoute.get("/fetchingproduct/:id", productController.fetchProduct);
 userRoute.get("/fetchSize/:id", productController.fetchSize);
 
@@ -68,4 +76,27 @@ userRoute.get("/cart/checkout/:id", orderController.fetchCartToCheckout);
 userRoute.get("/fetchorders/:userId", orderController.fetchOrders);
 userRoute.get("/fetchorder/:order_id", orderController.fetchOrder);
 userRoute.patch("/order/cancel", orderController.orderCancel);
+
+//Review controller routes
+userRoute.post("/product/review", reviewController.addReview);
+userRoute.get("/fetchreview/:productId", reviewController.fetchReview);
+userRoute.get(
+  "/average-rating/:productId",
+  reviewController.fetchAverageRating
+);
+
+//Category controller routes
+userRoute.get("/category", categoryController.fetchCategories);
+
+//Wishlist controller routes
+userRoute.post("/wishlist", wishlistController.addTOWishlist);
+userRoute.get("/wishlist/:user_id", wishlistController.fetchWishlist);
+userRoute.get(
+  "/wishlist/:product_id/:user_id",
+  wishlistController.checkIsExistOnWishlist
+);
+userRoute.delete(
+  "/wishlist/:product_id/:user_id",
+  wishlistController.removeFromWishlist
+);
 module.exports = userRoute;

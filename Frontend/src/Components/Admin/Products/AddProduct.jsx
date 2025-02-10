@@ -79,7 +79,7 @@ export default function AddProduct() {
   }
 
   async function handleAddProduct() {
-    console.log("imageFiles :::::>", imageFiles);
+    // console.log("imageFiles :::::>", imageFiles);
 
     const validate = validateAddProduct(
       name,

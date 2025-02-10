@@ -14,7 +14,7 @@ function OrderDetails() {
   async function fetchOrderDetails() {
     try {
       const response = await axiosInstance.get(`/user/fetchorder/${order_id}`);
-      console.log("Fetched Order", response.data.orderData);
+      // console.log("Fetched Order", response.data.orderData);
       setOrder(response.data.orderData);
     } catch (error) {
       console.error("Error fetching Order Details:", error);
@@ -127,7 +127,11 @@ function OrderDetails() {
                 <div
                   key={item._id}
                   className="flex flex-col sm:flex-row gap-6 p-4 bg-[#f4ede3] rounded-md shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <div className="sm:w-32 sm:h-40 relative group">
+                  <div
+                    onClick={() => {
+                      navigate(`/product-Page/${item.productId._id}`);
+                    }}
+                    className="sm:w-32 sm:h-40 relative group">
                     <img
                       src={item.productId.images[0] || "/placeholder.svg"}
                       alt={item.productId.name}
@@ -138,7 +142,11 @@ function OrderDetails() {
 
                   <div className="flex flex-col sm:flex-row justify-between w-full gap-4">
                     <div className="space-y-3">
-                      <h3 className="text-[#b8836e] text-sm font-Futura-Light">
+                      <h3
+                        onClick={() => {
+                          navigate(`/product-Page/${item.productId._id}`);
+                        }}
+                        className="text-[#9d654f] text-sm font-Futura-Light">
                         {item.productId.name}
                       </h3>
                       <div className="flex flex-col gap-1">
@@ -214,7 +222,7 @@ function OrderDetails() {
             <div className="flex justify-end space-x-4">
               <button
                 onClick={() => setShowConfirmation(false)}
-                className="px-4 py-2 bg-[#d4c9bc] text-[#8b5d4b] rounded hover:bg-[#c0b5a8] transition-colors duration-200">
+                className="px-4 py-2 bg-[#ece3d9] text-[#8b5d4b] rounded hover:bg-[#e8dac8] transition-colors duration-200">
                 No, Keep Item
               </button>
               <button

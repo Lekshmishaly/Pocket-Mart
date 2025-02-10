@@ -16,6 +16,7 @@ export default function ProductList() {
     try {
       const response = await axiosInstance.get("/admin/products");
       setProducts(response.data.ProductsData);
+      console.log("products::kitti", response.data.ProductsData);
     } catch (error) {
       console.log(error);
       if (error.response) {
@@ -129,7 +130,7 @@ export default function ProductList() {
                         })}
                       </td>
                       <td className="px-4 py-3 text-gray-600">
-                        {product.category.name}
+                        {product.name}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
