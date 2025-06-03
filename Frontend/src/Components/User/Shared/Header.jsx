@@ -104,7 +104,9 @@ export default function Header({ name }) {
                 All
               </span>
               <span className="mx-2">|</span>
-              <span className="cursor-pointer text-[#8b5d4b] text-sm font-thin leading-relaxed font-Futura-Light, sans-serif">
+              <span
+                onClick={() => navigate("/shop-page")}
+                className="cursor-pointer text-[#8b5d4b] text-sm font-thin leading-relaxed font-Futura-Light, sans-serif">
                 {name || ""}
               </span>
             </nav>

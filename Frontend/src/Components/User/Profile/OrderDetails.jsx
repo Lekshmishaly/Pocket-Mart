@@ -1,21 +1,31 @@
 import axiosInstance from "@/Utils/AxiosConfig";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import OrderReturn from "../Shared/orderReturn";
 
 function OrderDetails() {
+  const userData = useSelector((store) => store.user.userDetails);
   const navigate = useNavigate();
   const [reload, setReload] = useState(false);
   const { order_id } = useParams();
   const [order, setOrder] = useState([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [itemToCancel, setItemToCancel] = useState(null);
+  const [showReasonPopup, setShowReasonPopup] = useState(false);
+  const [selectedReason, setSelectedReason] = useState("");
+  const [showReturnPopup, setShowReturnPopup] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [orderID, setOrderID] = useState(null);
+  /////////////////////////////////////////// fetch Order Details /////////////////////////////////////////
 
   async function fetchOrderDetails() {
     try {
       const response = await axiosInstance.get(`/user/fetchorder/${order_id}`);
-      // console.log("Fetched Order", response.data.orderData);
+      console.log("Updated orderDetails:", response.data.orderData);
       setOrder(response.data.orderData);
+      // console.log("orderDetails", response.data.orderData);
     } catch (error) {
       console.error("Error fetching Order Details:", error);
       toast.error("Failed to fetch order details. Please try again.");
@@ -24,48 +34,123 @@ function OrderDetails() {
 
   async function handleOrderCancellation(itemId) {
     setItemToCancel(itemId);
+    setShowReasonPopup(true);
+  }
+
+  async function proceedToConfirmation() {
+    setShowReasonPopup(false);
+    toast.success("Your response has been recorded. Thank you!");
     setShowConfirmation(true);
   }
 
+  /////////////////////////////////////////// confirm Cancellation /////////////////////////////////////////
+
   async function confirmCancellation() {
+    if (!order?.order_id || !itemToCancel || !selectedReason) {
+      toast.error("Invalid cancellation request. Please try again.");
+      return;
+    }
+
     try {
       const response = await axiosInstance.patch("/user/order/cancel", {
+        userId: userData._id,
         order_id: order.order_id,
         itemId: itemToCancel,
+        reason: selectedReason,
       });
+
+      // console.log("Cancellation Reason:", selectedReason);
       setReload(true);
       setShowConfirmation(false);
       toast.success(response.data.message);
     } catch (error) {
       console.error("Error in Order Cancelling:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Cancellation failed. Please try again."
+      );
     }
   }
+
+  /////////////////////////////////////////// handle Return Confirm /////////////////////////////////////////
+
+  async function handleReturnConfirm(reason, explanation, itemId, orderID) {
+    try {
+      console.log("Return Reason:", reason);
+      console.log("Explanation:", explanation);
+      console.log("Product ID", itemId);
+      console.log("orderID:", orderID);
+
+      // Register return request
+      const response = await axiosInstance.post("/user/return/request", {
+        reason,
+        explanation,
+        orderID,
+        itemId,
+      });
+
+      toast.success(response.data.message);
+
+      setReload(true); // ✅ This triggers useEffect to refetch data
+      setShowReturnPopup(false);
+    } catch (error) {
+      console.error(error);
+      if (error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  }
+
+  /////////////////////////////////////// Download Invoice ////////////////////////////////////
+
+  const handleDownloadInvoice = async () => {
+    try {
+      const response = await axiosInstance.get(`/user/invoice/${order._id}`, {
+        responseType: "blob", // Important for binary file
+      });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Invoice.pdf";
+      link.click();
+    } catch (err) {
+      console.error("Error downloading invoice:", err);
+    }
+  };
 
   useEffect(() => {
     fetchOrderDetails();
     setReload(false);
   }, [reload]);
-
   return (
     <div className="bg-[#f4ede3] min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Back Link */}
-        <button
-          onClick={() => navigate("/profile/account")}
-          className="relative text-[#613220] text-sm font-Futura-Light hover:text-[#3d2a22] transition-colors duration-300 group mb-8">
-          ← Return to Account details
-          <span className="absolute left-0 bottom-0 h-[1px] w-full bg-[#8b5d4b] transition-all duration-500 transform scale-x-100 group-hover:scale-x-50 origin-center"></span>
-        </button>
-
+        <div className="flex justify-between items-center mb-8">
+          <button
+            onClick={() => navigate("/profile/account")}
+            className="relative text-[#613220] text-sm font-Futura-Light hover:text-[#3d2a22] transition-colors duration-300 group">
+            ← Return to Account details
+            <span className="absolute left-0 bottom-0 h-[1px] w-full bg-[#8b5d4b] transition-all duration-500 transform scale-x-100 group-hover:scale-x-50 origin-center"></span>
+          </button>
+          <div>
+            <button
+              className=" bg-[#aa6246] px-6 py-2 rounded-lg  text-[#f4ede3] text-sm font-Futura-Light hover:bg-[#8b5d4b]"
+              onClick={handleDownloadInvoice}>
+              Download Invoice
+            </button>
+          </div>
+        </div>
         {/* Order Header */}
         <div className="border-b border-[#8b5d4b]/20">
-          <h1 className="text-[#b8836e] text-l font-[Satisfy] mb-2">
-            {` Order ID: ${order.order_id}  |  ${order.payment_status}`}
+          <h1 className="text-[#90614e] text-l font-[Satisfy] mb-2">
+            {` Order ID: ${order?.order_id}`}
           </h1>
         </div>
-
         {/* Order Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 my-12 border-b border-[#8b5d4b]/20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 my-12  -ml-10 border-b border-[#8b5d4b]/20">
+          {" "}
           {/* Date */}
           <div className="mx-auto">
             <h2 className="text-[#8b5d4b] text-sm font-semibold mb-6">Date</h2>
@@ -81,7 +166,6 @@ function OrderDetails() {
               })}
             </p>
           </div>
-
           {/* Shipping Address */}
           <div className="mx-auto">
             <h2 className="text-[#8b5d4b] text-sm font-semibold mb-6">
@@ -101,14 +185,17 @@ function OrderDetails() {
               <p>{order?.shipping_address?.country}</p>
             </div>
           </div>
-
           {/* Order Value */}
           <div className="mx-auto">
             <h2 className="text-[#8b5d4b] text-sm font-semibold mb-6">
               Order value
             </h2>
             <p className="text-[#b8836e] text-sm font-Futura-Light">
-              INR {order.total_amount?.toLocaleString("en-IN")}.00
+              INR{" "}
+              {Math.round(order.total_price_with_discount)?.toLocaleString(
+                "en-IN"
+              )}
+              .00
             </p>
           </div>
         </div>
@@ -151,17 +238,29 @@ function OrderDetails() {
                       </h3>
                       <div className="flex flex-col gap-1">
                         <p className="text-[#b8836e] text-sm font-Futura-Light">
-                          INR {item.productId.price.toLocaleString("en-IN")}.00
+                          INR{" "}
+                          {Math.round(item.productId.price).toLocaleString(
+                            "en-IN"
+                          )}
+                          .00
                         </p>
                         <p className="text-[#b8836e] text-sm font-Futura-Light">
                           Quantity: {item.qty}
                         </p>
-                        <p className="text-[#b8836e] text-sm font-Futura-Light">
+                        <p
+                          className={`text-sm font-Futura-Light ${
+                            item.order_status === "Cancelled"
+                              ? "text-red-500"
+                              : item.order_status === "Delivered"
+                              ? "text-green-500"
+                              : item.order_status === "Pending"
+                              ? "text-yellow-500"
+                              : "text-[#b8836e]"
+                          }`}>
                           Order Status: {item.order_status}
                         </p>
                       </div>
-
-                      {item.order_status !== "Cancelled" && (
+                      {item.order_status === "Pending" && (
                         <button
                           onClick={() => handleOrderCancellation(item._id)}
                           className="relative text-[#8b5d4b] text-sm font-Futura-Light hover:text-[#6d483a] transition-colors duration-300 group">
@@ -169,15 +268,79 @@ function OrderDetails() {
                           <span className="absolute left-0 bottom-0 h-[1px] w-full bg-[#8b5d4b] transition-all duration-500 transform scale-x-100 group-hover:scale-x-50 origin-center"></span>
                         </button>
                       )}
+
+                      {/* {console.log(
+                        "Rendering order_status:",
+                        item.order_status
+                      )} */}
+                      <div>
+                        {console.log(
+                          "Rendering order_status:",
+                          item.order_status
+                        )}
+
+                        <div>
+                          {/* Handle Different Return Statuses */}
+                          {item.order_status?.trim() === "Returned" ? (
+                            <p className="text-green-600 text-sm font-semibold">
+                              Your return request’s been Approved.
+                            </p>
+                          ) : item.order_status?.trim() ===
+                            "Return Rejected" ? (
+                            <p className="text-red-600 text-sm font-semibold">
+                              Your return request’s been Rejected.
+                            </p>
+                          ) : item.return_request?.status === "Pending" ? (
+                            <p className="text-yellow-600 text-sm font-semibold">
+                              Return request is under processing
+                            </p>
+                          ) : item.order_status?.trim() === "Delivered" ? (
+                            <>
+                              {/* Show Return Deadline Only If No Return Request for This Product */}
+                              {!item.return_request?.status && (
+                                <p className="text-red-600 text-sm font-semibold mb-1">
+                                  Return deadline: 7 days remaining
+                                </p>
+                              )}
+                              {/* Show Return Order Button Only If No Request Exists */}
+                              <button
+                                onClick={() => {
+                                  setOrderID(order.order_id);
+                                  setSelectedProductId(item._id);
+                                  setShowReturnPopup(true);
+                                }}
+                                className="relative text-[#8b5d4b] text-sm font-Futura-Light hover:text-[#6d483a] transition-colors duration-300 group">
+                                Return order
+                                <span className="absolute left-0 bottom-0 h-[1px] w-full bg-[#8b5d4b] transition-all duration-500 transform scale-x-100 group-hover:scale-x-50 origin-center"></span>
+                              </button>
+                            </>
+                          ) : null}
+                        </div>
+
+                        {/* Show Return Popup if Active */}
+                        {showReturnPopup && selectedProductId && (
+                          <OrderReturn
+                            setShowReturnPopup={setShowReturnPopup}
+                            handleReturnConfirm={handleReturnConfirm}
+                            selectedProductId={selectedProductId}
+                            orderID={orderID}
+                          />
+                        )}
+                      </div>
                     </div>
 
                     <div className="hidden sm:flex items-start justify-end">
                       <p className="text-[#b8836e] text-sm font-Futura-Light">
                         Total: INR{" "}
-                        {(item.productId.price * item.qty).toLocaleString(
-                          "en-IN"
-                        )}
+                        {Math.round(
+                          order.total_price_with_discount * item.qty
+                        ).toLocaleString("en-IN")}
                         .00
+                        {item.discount > 0 && (
+                          <p className="text-[9.7px] font-Futura-Light text-[#ce472c] font-semibold rounded-sm ">
+                            {item.discount}% off
+                          </p>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -191,23 +354,78 @@ function OrderDetails() {
           <div className="flex justify-between text-sm font-semibold text-[#8b5d4b] pt-4 border-t border-[#8b5d4b]/20">
             <span className="text-[#b8836e]">Subtotal</span>
             <span className="text-[#b8836e]">
-              INR {order.total_amount?.toLocaleString("en-IN")}.00
+              INR{" "}
+              {Math.round(order.total_price_with_discount)?.toLocaleString(
+                "en-IN"
+              )}
+              .00
             </span>
           </div>
-          <div className="flex justify-between text-sm font-Futura-Light text-[#8b5d4b]">
+          <div className="flex justify-between text-sm mt-2 font-Futura-Light text-[#8b5d4b]">
             <span className="text-[#b8836e]">
               Shipping (Standard Prepaid Shipping)
             </span>
-            <span className="text-[#b8836e]">INR 0.00</span>
+            <span className="text-green-600">Free</span>
           </div>
           <div className="flex justify-between text-sm font-semibold text-[#8b5d4b] pt-4 border-t border-[#8b5d4b]/20">
             <span className="text-[#b8836e]">Total</span>
             <span className="text-[#b8836e]">
-              INR {order.total_amount?.toLocaleString("en-IN")}.00
+              INR{" "}
+              {Math.round(order.total_price_with_discount)?.toLocaleString(
+                "en-IN"
+              )}
+              .00
             </span>
           </div>
         </div>
       </div>
+
+      {/* Reason Selection Popup */}
+      {showReasonPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#d0c4b5] p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-[#955238] text-lg font-semibold mb-4 text-center">
+              Select Cancellation Reason
+            </h2>
+            <div className="space-y-3 max-h-60 overflow-y-auto mb-6">
+              {[
+                "Ordered by Mistake",
+                "Found a Better Deal",
+                "Delivery Taking Too Long",
+                "Change of Mind",
+                "Wrong Size/Color Chosen",
+                "Payment Issues",
+                "Product Reviews/Feedback",
+                "Quality Concerns",
+                "Damaged Product",
+              ].map((reason) => (
+                <div
+                  key={reason}
+                  className={`p-3 border rounded-md cursor-pointer transition-colors duration-200 ${
+                    selectedReason === reason
+                      ? "bg-[#b98a78] text-white border-[#713d28]"
+                      : "bg-[#ece3d9] text-[#8b5d4b] border-[#d4c9bc] hover:bg-[#e8dac8]"
+                  }`}
+                  onClick={() => setSelectedReason(reason)}>
+                  {reason}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowReasonPopup(false)}
+                className="px-4 py-2 bg-[#ece3d9] text-[#8b5d4b] rounded hover:bg-[#e8dac8] transition-colors duration-200">
+                Cancel
+              </button>
+              <button
+                onClick={proceedToConfirmation}
+                className="px-4 py-2 bg-[#955238] text-white rounded hover:bg-[#713d28] transition-colors duration-200">
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Popup */}
       {showConfirmation && (

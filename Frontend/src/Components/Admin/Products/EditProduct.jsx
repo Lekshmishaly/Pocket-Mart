@@ -14,12 +14,12 @@ export default function EditProduct() {
   const [mainImage, setMainImage] = useState("");
   //states
   const [isLoading, setIsLoading] = useState(false);
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [additionalInfo, setAdditionalInfo] = useState("");
-  const [category, setCategory] = useState("");
-  const [sleeve, setSleeve] = useState("");
+  // const [name, setName] = useState("");
+  // const [price, setPrice] = useState("");
+  // const [description, setDescription] = useState("");
+  // const [additionalInfo, setAdditionalInfo] = useState("");
+  // const [category, setCategory] = useState("");
+  // const [sleeve, setSleeve] = useState("");
 
   const [product, setProduct] = useState({});
   const [categories, setCategories] = useState([]);
@@ -62,6 +62,8 @@ export default function EditProduct() {
       reader.readAsDataURL(file);
     }
   };
+
+  ///////////////////////////////////////// update product /////////////////////////////////////
 
   async function handleUpdateProduct() {
     const validate = validateEditProduct(
@@ -425,7 +427,11 @@ export default function EditProduct() {
                     Category
                   </label>
                   <select
-                    value={product?.category?.name}
+                    value={
+                      product.category && typeof product.category === "object"
+                        ? product.category._id
+                        : product.category || ""
+                    }
                     onChange={(e) =>
                       setProduct((prev) => ({
                         ...prev,
@@ -433,6 +439,9 @@ export default function EditProduct() {
                       }))
                     }
                     className="w-full px-4 py-2 rounded-lg border focus:border-[#e07d6a] focus:ring-[#e07d6a] focus:ring-2 outline-none">
+                    <option value="" disabled>
+                      Select a category
+                    </option>
                     {categories.map((cat) => (
                       <option key={cat._id} value={cat._id}>
                         {cat.name}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-
 import { useNavigate } from "react-router-dom";
 import { NotebookPen, Plus } from "lucide-react";
 import axiosInstance from "@/Utils/AxiosConfig";
@@ -15,25 +14,38 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { fetchCategoryOfferApi, removeOffer } from "@/APIs/Products/Offers";
+import Pagination from "@/Utils/Pagination";
 
 export default function CategoriesList() {
   const [categories, setCategories] = useState([]);
   const [toggle, setToggle] = useState(true);
   const [reload, setReload] = useState(false);
+  const [offers, setOffers] = useState([]);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
-  async function fetchCategory() {
+  /////////////////////////////////////// fetch Category //////////////////////////////
+
+  async function fetchCategory(page = 1) {
     try {
-      const response = await axiosInstance.get("/admin/categories");
+      const response = await axiosInstance.get(
+        `/admin/categories?page=${page}&limit=6`
+      );
       setCategories(response.data.categoryData);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.log(error);
       if (error.response) {
-        return console.log(error.response.data.message);
+        console.log(error.response.data.message);
       }
     }
   }
+  /////////////////////////////////////// handle Category Status //////////////////////////////
 
   async function handleCategoryStatus(_id, isActive) {
     try {
@@ -55,14 +67,46 @@ export default function CategoriesList() {
     }
   }
 
+  /////////// handle Category Edit ///////////
+
   function handleCategoryEdit(_id) {
     navigate(`/admin/edit-categories/${_id}`);
   }
 
+  /////////////////////////////////////// fetch Category Offer //////////////////////////////
+
+  async function fetchCategoryOffer() {
+    try {
+      const response = await fetchCategoryOfferApi();
+      setOffers(response.data.categoryOffer);
+
+      console.log("Offers", response.data.categoryOffer);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  //////////////////////////////////// handleRemoveOffer /////////////////////////////////
+
+  async function handleRemoveOffer(id) {
+    try {
+      const response = await removeOffer(id);
+      toast.success(response.data.message);
+      setReload(true);
+    } catch (error) {
+      console.log(error);
+      if (error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  }
+
   useEffect(() => {
-    fetchCategory();
+    fetchCategory(currentPage);
+    fetchCategoryOffer();
     setReload(false);
-  }, [reload]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [reload, currentPage]);
 
   return (
     <div className="bg-[#f5f5f5] p-4 md:p-6">
@@ -72,9 +116,11 @@ export default function CategoriesList() {
           <div>
             <h1 className="text-2xl md:text-3xl font-bold mb-1">Categories</h1>
             <nav className="flex items-center gap-2 text-sm">
-              <a href="/dashboard" className="text-black hover:underline">
+              <span
+                onClick={() => navigate("/admin/dashboard")}
+                className="text-gray-900 hover:text-gray-600 cursor-pointer">
                 Dashboard
-              </a>
+              </span>
               <span className="text-gray-500">&gt;</span>
               <span className="text-gray-500">Categories</span>
             </nav>
@@ -95,6 +141,8 @@ export default function CategoriesList() {
                 <TableHead className="w-[200px]">Category Name</TableHead>
                 <TableHead>Added</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Offers</TableHead>
+                <TableHead>Figure</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -130,6 +178,42 @@ export default function CategoriesList() {
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#e07d6a]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#e07d6a]"></div>
                       </label>
                     </TableCell>
+                    <TableCell>
+                      {offers.some(
+                        (offer) => offer.target_id === category._id
+                      ) ? (
+                        <button
+                          className="border rounded py-1 px-1 text-purple-700 hover:bg-[#efdbf3]"
+                          onClick={() => handleRemoveOffer(category._id)}>
+                          Clear Offer
+                        </button>
+                      ) : (
+                        <button
+                          className="border rounded py-1 px-1 text-[#e07d6a] hover:bg-[#ead8d4]"
+                          onClick={() =>
+                            navigate(
+                              `/admin/category-offer/${category._id}/${category.name}`
+                            )
+                          }>
+                          Add Offer
+                        </button>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {offers.find((offer) => offer.target_id === category._id)
+                        ?.discountValue ? (
+                        <span>
+                          {
+                            offers.find(
+                              (offer) => offer.target_id === category._id
+                            )?.discountValue
+                          }
+                          % OFF
+                        </span>
+                      ) : (
+                        <span>0% OFF</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <button
                         className="text-gray-600 hover:text-[#e07d6a] transition-colors p-1"
@@ -143,6 +227,15 @@ export default function CategoriesList() {
               )}
             </TableBody>
           </Table>
+        </div>
+        <div className="flex justify-center mt-6">
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          )}
         </div>
       </div>
     </div>

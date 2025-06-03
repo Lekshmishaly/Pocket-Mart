@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { validateUserDetails } from "@/Utils/ValidationFunctions";
 import { addUser } from "@/Redux/Slice/UserSlice";
 import axiosInstance from "@/Utils/AxiosConfig";
+import ReferralCode from "../Shared/ReferralCode";
 
 function Account() {
   const dispatch = useDispatch();
@@ -16,6 +17,8 @@ function Account() {
     phone: userData.phone,
   });
 
+  // // Referral Code
+  // const [referalCode, setReferalCode] = useState("");
   function handleUpdate() {
     setIsEditing(true);
   }
@@ -151,6 +154,9 @@ function Account() {
           </p>
         </div>
       )}
+      <div>
+        <ReferralCode referralCode={userData.referralCode || "Not available"} />
+      </div>
     </div>
   );
 }

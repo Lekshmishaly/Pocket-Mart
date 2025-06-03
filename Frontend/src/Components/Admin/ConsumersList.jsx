@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Pagination from "@/Utils/Pagination";
 
 export default function ConsumersList() {
   const userData = useSelector((store) => store.user.userDetails);
@@ -24,20 +25,25 @@ export default function ConsumersList() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  async function fetchCustomers() {
+  /////////////////////////////////// fetch Customers //////////////////////////////
+
+  async function fetchCustomers(page = 1) {
     try {
-      const response = await axiosInstance.get("/admin/customerList");
+      const response = await axiosInstance.get(
+        `/admin/customerList?page=${page}&limit=6`
+      );
       setCustomers(response.data.userDetails);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.log("Error fetching consumer data:", error);
-      if (error.response?.data?.message) {
-        console.log("Error message:", error.response.data.message);
-      } else {
-        console.log("An unknown error occurred:", error.message);
-      }
     }
   }
 
@@ -76,9 +82,10 @@ export default function ConsumersList() {
   };
 
   useEffect(() => {
-    fetchCustomers();
+    fetchCustomers(currentPage);
     setReload(false);
-  }, [reload]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [reload, currentPage]);
 
   return (
     <div className="min-h-screen bg-white p-4 sm:p-6 lg:p-8">
@@ -172,15 +179,15 @@ export default function ConsumersList() {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center px-4 py-3 border-t border-gray-200">
-            <div className="flex items-center gap-1">
-              <button className="px-3 py-1 bg-black text-white rounded">
-                1
-              </button>
-              <button className="px-3 py-1 hover:bg-gray-100 rounded">2</button>
-              <button className="px-3 py-1 hover:bg-gray-100 rounded">3</button>
-              <span className="px-2">»</span>
-            </div>
+
+          <div className="flex justify-center mt-6">
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            )}
           </div>
         </div>
       </div>

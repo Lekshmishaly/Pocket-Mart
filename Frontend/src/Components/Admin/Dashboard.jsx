@@ -17,7 +17,7 @@ import {
   ShoppingBag,
   IndianRupee,
 } from "lucide-react";
-import axiosInstance from "../../Utils/AxiosConfig";
+import axiosInstance from "@/Utils/AxiosConfig";
 
 export default function Dashboard() {
   const [TotalCustomers, setTotalCustomers] = useState(0);
@@ -40,6 +40,8 @@ export default function Dashboard() {
       <div className="flex items-center text-sm"></div>
     </div>
   );
+
+  //////////////////////////////////////////////////// fetch Chart Data //////////////////////////////////////////////////
 
   async function fetchChartData() {
     try {
@@ -90,7 +92,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Sales Overview</h2>
           <select
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            className="bg-gray-50 border border-[#b44b37] text-gray-900 text-sm rounded-lg focus:ring-[#e07d6a] focus:border-[#b44b37] p-2.5"
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}>
             <option value="week">This Week</option>
@@ -105,7 +107,7 @@ export default function Dashboard() {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="sales" fill="#3B82F6" />
+            <Bar dataKey="sales" fill="#e07f6c" />
           </BarChart>
         </ResponsiveContainer>
       </div>

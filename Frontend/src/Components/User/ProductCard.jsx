@@ -1,12 +1,33 @@
 import axiosInstance from "@/Utils/AxiosConfig";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { CalculateOfferPrice } from "@/Utils/CalculateOfferPrice";
 
 function ProductCard({ product }) {
+  // offers
+
+  const [offerPrice, setofferPrice] = useState(0);
+  const [offerDiscountAmount, setofferDiscountAmount] = useState(null);
+  const [offerDiscountPercentage, setofferDiscountPercentage] = useState(null);
   const navigate = useNavigate();
 
+  ///////////////////////////////////// offers ////////////////////////////////////////////
+
+  async function offers() {
+    const offerData = await CalculateOfferPrice(
+      product._id,
+      product.category,
+      product.price
+    );
+    setofferPrice(offerData.offerPrice);
+    setofferDiscountAmount(offerData.offerDiscountAmt);
+    setofferDiscountPercentage(offerData.offerDiscount);
+  }
+  useEffect(() => {
+    offers();
+  }, []);
   return (
     <div
       onClick={() => {
@@ -35,18 +56,36 @@ function ProductCard({ product }) {
       {/* Product Info */}
       <div className="space-y-4">
         <div className="flex justify-between items-start">
-          <h3 className="text-[#312f2d] mx-4 text-sm font-thin leading-relaxed font-Futura-Light, sans-serif">
-            {product.name}
-          </h3>
-          <div className="text-right">
-            <p className=" text-[#93624c] text-sm mx-4 font-thin leading-relaxed font-Futura-Light, sans-serif">
-              {" "}
-              INR {product.price.toFixed(2)}
-            </p>
+          <div className="flex items-center gap-2 ml-4">
+            {" "}
+            <h3 className="text-[#312f2d] text-[13px] font-thin leading-relaxed font-Futura-Light, sans-serif">
+              {product.name}
+            </h3>
+            {offerDiscountPercentage && product.stocks >= 1 && (
+              <span className="bg-[#e07d6a] text-white text-[9px] px-2 py-1 font-thin mt-1.5 font-Futura-Light">
+                {offerDiscountPercentage}% off
+              </span>
+            )}
+          </div>
+
+          <div className="text-right mr-4">
+            {typeof offerPrice === "number" &&
+            offerPrice > 0 &&
+            offerPrice < product.price &&
+            product.stocks >= 1 ? (
+              <p className="text-[#e3703b] text-[13px] font-thin leading-relaxed font-Futura-Light, sans-serif flex items-center justify-end gap-2">
+                ₹{Math.round(offerPrice).toFixed(2)}
+                <span className="text-gray-500 line-through text-[13px] leading-relaxed">
+                  INR {product.price.toFixed(2)}
+                </span>
+              </p>
+            ) : (
+              <p className="text-[#93624c] text-[13px] font-thin leading-relaxed font-Futura-Light, sans-serif">
+                INR {product.price.toFixed(2)}
+              </p>
+            )}
           </div>
         </div>
-
-        {/* Size Options */}
       </div>
     </div>
   );

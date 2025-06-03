@@ -55,6 +55,7 @@ function RatingPage() {
       );
 
       setReviews(response.data.reviewData);
+      console.log("Fetched Reviews:", response.data.reviewData);
     } catch (error) {
       console.error("Error checking for fetching Review:", error);
     }
@@ -72,35 +73,41 @@ function RatingPage() {
           Customer Reviews
         </h3>
         <div className="space-y-4 h-[500px]  pr-4 overflow-y-auto scrollbar-hide">
-          {reviews.map((review) => (
-            <div
-              key={review._id}
-              className="bg-[#eae0d3] rounded-lg shadow-sm p-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-xs font-light text-[#8d401d]">
-                  {`${review.user.firstname} ${review.user.lastname}`}
-                </span>
-                <div className="flex">
-                  {[...Array(5)].map((_, index) => (
-                    <Star
-                      key={index}
-                      className={`w-4 h-4 ${
-                        index < review.rating
-                          ? "text-[#733519]"
-                          : "text-[#ffffff]"
-                      }`}
-                      fill="currentColor"
-                      stroke="#9e8277"
-                      strokeWidth="0.5"
-                    />
-                  ))}
+          {reviews?.length > 0 ? (
+            reviews.map((review) => (
+              <div
+                key={review._id}
+                className="bg-[#eae0d3] rounded-lg shadow-sm p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-xs font-light text-[#8d401d]">
+                    {review.user
+                      ? `${review.user.firstname} ${review.user.lastname}`
+                      : "User"}
+                  </span>
+                  <div className="flex">
+                    {[...Array(5)].map((_, index) => (
+                      <Star
+                        key={index}
+                        className={`w-4 h-4 ${
+                          index < review.rating
+                            ? "text-[#733519]"
+                            : "text-[#ffffff]"
+                        }`}
+                        fill="currentColor"
+                        stroke="#9e8277"
+                        strokeWidth="0.5"
+                      />
+                    ))}
+                  </div>
                 </div>
+                <p className="text-sm font-Futura-Light text-[#8b5d4b]">
+                  {review.comment}
+                </p>
               </div>
-              <p className="text-sm font-Futura-Light text-[#8b5d4b]">
-                {review.comment}
-              </p>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="font-xs font-light text-[#8d401d]">No reviews yet.</p>
+          )}
         </div>
       </div>
 

@@ -4,26 +4,41 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "@/Utils/AxiosConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { button } from "@heroui/theme";
+import { fetchProductOfferApi, removeOffer } from "@/APIs/Products/Offers";
+import Pagination from "@/Utils/Pagination";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [toggle, setToggle] = useState(true);
   const [reload, setReload] = useState(false);
+  const [offers, setOffers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  async function fetchProducts() {
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  //////////////////////////////////// fetch Products ////////////////////////////////
+
+  async function fetchProducts(page = 1) {
     try {
-      const response = await axiosInstance.get("/admin/products");
+      const response = await axiosInstance.get(
+        `/admin/products?page=${page}&limit=${ITEMS_PER_PAGE}`
+      );
       setProducts(response.data.ProductsData);
-      console.log("products::kitti", response.data.ProductsData);
+      setTotalPages(response.data.totalPages); // backend should return this
     } catch (error) {
       console.log(error);
       if (error.response) {
-        return console.log(error.response.data.message);
+        console.log(error.response.data.message);
       }
     }
   }
+
+  //////////////////////////////////// handle Product Status ////////////////////////////////
 
   async function handleProductStatus(_id, isActive) {
     try {
@@ -45,10 +60,42 @@ export default function ProductList() {
       }
     }
   }
+
+  /////////////////////////////////////// fetch Product Offer //////////////////////////////
+
+  async function fetchProductOffer() {
+    try {
+      const response = await fetchProductOfferApi();
+      setOffers(response.data.productOffer);
+
+      console.log("Offers", response.data.productOffer);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  //////////////////////////////////// handleRemoveOffer /////////////////////////////////
+
+  async function handleRemoveOffer(id) {
+    try {
+      const response = await removeOffer(id);
+      toast.success(response.data.message);
+      setReload(true);
+    } catch (error) {
+      console.log(error);
+      if (error.response) {
+        toast.error(error.response.data.message);
+      }
+    }
+  }
+
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(currentPage);
+    fetchProductOffer();
     setReload(false);
-  }, [reload]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [reload, currentPage]);
+
   return (
     <div className="min-h-screen bg-white p-4 sm:p-6 lg:p-8">
       <div className="max-w-[1920px] mx-auto">
@@ -59,11 +106,11 @@ export default function ProductList() {
               Product Management
             </h1>
             <nav className="flex items-center gap-2 text-sm">
-              <a
-                href="/dashboard"
-                className="text-gray-900 hover:text-gray-600">
+              <span
+                onClick={() => navigate("/admin/dashboard")}
+                className="text-gray-900 hover:text-gray-600 cursor-pointer">
                 Dashboard
-              </a>
+              </span>
               <span className="text-gray-400">/</span>
               <span className="text-gray-400">Product Management</span>
             </nav>
@@ -98,30 +145,50 @@ export default function ProductList() {
                   <th className="text-left px-4 py-3 font-medium">QTY</th>
                   <th className="text-left px-4 py-3 font-medium">Price</th>
                   <th className="text-left px-4 py-3 font-medium">Category</th>
+                  <th className="text-left px-4 py-3 font-medium">Offer</th>
                   <th className="text-left px-4 py-3 font-medium">Actions</th>
                 </tr>
               </thead>
 
               {/* Table Body */}
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 ">
                 {Array.isArray(products) &&
                   products.map((product, index) => (
                     <tr
                       key={index}
                       className="bg-white hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className=" h-28 aspect-[3/4] object-cover rounded"
-                          />
+                      <td className="px-4 py-3 relative">
+                        <div className="flex items-center gap-3 relative">
+                          <div className="relative">
+                            {/* Product Image */}
+                            <img
+                              src={product.images[0]}
+                              alt={product.name}
+                              className="h-28 aspect-[3/4] object-cover rounded"
+                            />
+
+                            {/* Discount Badge - Positioned Inside Image (Top Left) */}
+                            {offers.find(
+                              (offer) => offer.target_id === product._id
+                            ) && (
+                              <div className="absolute top-1 left-0.5 bg-white px-0.5 py-0 rounded-full text-[8px] font-semibold shadow-md">
+                                {
+                                  offers.find(
+                                    (offer) => offer.target_id === product._id
+                                  )?.discountValue
+                                }
+                                % OFF
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Product Name */}
                           <span className="font-medium">{product.name}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{product.id}</td>
+                      <td className="px-4 py-3 text-gray-600">{product._id}</td>
                       <td className="px-4 py-3 text-gray-600">
-                        {product.quantity}
+                        {product.stocks}
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         INR{" "}
@@ -132,6 +199,32 @@ export default function ProductList() {
                       <td className="px-4 py-3 text-gray-600">
                         {product.name}
                       </td>
+
+                      {offers.some(
+                        (offer) => offer.target_id === product._id
+                      ) ? (
+                        <td className="px-4 py-3 text-purple-700">
+                          <div className="border rounded text-center py-0.2 px-0.4 border-gray-300 hover:bg-[#efdbf3]">
+                            <button
+                              onClick={() => handleRemoveOffer(product._id)}>
+                              Clear Offer
+                            </button>
+                          </div>
+                        </td>
+                      ) : (
+                        <td className="px-4 py-3 text-[#e07d6a]">
+                          <div className="border text-center rounded border-gray-300 hover:bg-[#ead8d4]">
+                            <button
+                              onClick={() =>
+                                navigate(
+                                  `/admin/product-offer/${product._id}/${product.name}`
+                                )
+                              }>
+                              Add Offer
+                            </button>
+                          </div>
+                        </td>
+                      )}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <button
@@ -165,15 +258,15 @@ export default function ProductList() {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-            <div className="flex items-center gap-1">
-              <button className="px-3 py-1 bg-[#e07d6a] text-white rounded">
-                1
-              </button>
-              <button className="px-3 py-1 hover:bg-gray-100 rounded">2</button>
-              <button className="px-3 py-1 hover:bg-gray-100 rounded">3</button>
-              <span className="px-2">»</span>
-            </div>
+          <div className="flex items-center justify-between px-4 py-3">
+            {/* Pagination Buttons */}
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            )}
 
             {/* Add Product Button */}
             <button

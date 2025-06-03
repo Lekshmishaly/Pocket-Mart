@@ -16,7 +16,7 @@ export function validateSignup(
   } else if (userFirstName.trim().length < 3) {
     error.userFirstName = "First name must be at least 3 characters long";
   } else if (userFirstName.trim().length > 15) {
-    error.userFirstName = "First name must not exceed 50 characters";
+    error.userFirstName = "First name must not exceed 15 characters";
   } else if (/\s/.test(userFirstName.trim())) {
     error.userFirstName = "First name should not contain spaces";
   } else if (/\d/.test(userFirstName.trim())) {
@@ -475,4 +475,120 @@ export function validateAddress(
 
   // Return validation result
   return Object.keys(error).length === 0;
+}
+
+////////////////////////////// validate Offer Adding /////////////////////////////////
+
+export function validateOffer(
+  offerName,
+  offerValue,
+  offerExpiryDate,
+  setError
+) {
+  let error = {};
+
+  if (!offerName.trim()) {
+    error.offerName = "Offer name is required.";
+  } else if (offerName.trim().length < 3) {
+    error.offerName = "Offer name must be at least 3 characters long";
+  } else if (offerName.trim().length > 15) {
+    error.offerName = "Offer name must not exceed 15 characters.";
+  } else if (/\s/.test(offerName)) {
+    error.offerName = "Offer name should not contain spaces.";
+  } else if (/\d/.test(offerName)) {
+    error.offerName = "Offer name should not contain numbers.";
+  }
+
+  if (isNaN(offerValue) || offerValue < 1 || offerValue > 99) {
+    error.offerValue = "Offer value should be a number between 1 and 99.";
+  }
+
+  const currentDate = new Date();
+  const expiryDate = new Date(offerExpiryDate); // Fixed variable name
+
+  if (!offerExpiryDate || !offerExpiryDate.trim()) {
+    error.offerExpiryDate = "Offer expiry date is required."; // Fixed key name
+  } else if (expiryDate <= currentDate) {
+    error.offerExpiryDate = "Offer expiry date should be a future date.";
+  }
+
+  setError(error);
+
+  return Object.keys(error).length === 0;
+}
+
+////////////////////////////////////////// validate Coupon Details ///////////////////////////////////////
+export function validateCouponDetails(
+  code,
+  description,
+  discountValue,
+  minPurchaseAmount,
+  maxDiscountAmount,
+  expirationDate,
+  usageLimit,
+  setError
+) {
+  console.log("somthing is happening");
+
+  const error = {};
+
+  // Code validation
+  if (!code?.trim()) {
+    error.code = "Code is required";
+  } else if (!/^[A-Z0-9]+$/.test(code.trim())) {
+    error.code =
+      "Code must be in capital letters and can only contain letters and numbers";
+  }
+
+  // Description validation
+  if (!description?.trim()) {
+    error.description = "Description is required";
+  }
+
+  // Discount Value validation
+  if (discountValue === undefined || discountValue === null) {
+    error.discountValue = "Discount value is required";
+  } else if (discountValue <= 0 || discountValue >= 99) {
+    error.discountValue =
+      "Discount value must be greater than 0 and less than 99";
+  }
+
+  // Minimum Purchase Amount validation
+  if (minPurchaseAmount === undefined || minPurchaseAmount === null) {
+    error.minPurchaseAmount = "Minimum purchase amount is required";
+  } else if (minPurchaseAmount < 100) {
+    error.minPurchaseAmount = "Minimum purchase amount must be at least 100";
+  }
+
+  // Maximum Discount Amount validation
+  if (maxDiscountAmount === undefined || maxDiscountAmount === null) {
+    error.maxDiscountAmount = "Maximum discount amount is required";
+  } else if (maxDiscountAmount > 3000) {
+    error.maxDiscountAmount = "Maximum discount amount cannot exceed 3000";
+  }
+
+  // Expiration Date validation
+  if (!expirationDate) {
+    error.expirationDate = "Expiration date is required";
+  } else if (new Date(expirationDate) <= new Date()) {
+    error.expirationDate = "Expiration date must be a future date";
+  }
+
+  // Usage Limit validation
+  if (usageLimit === undefined || usageLimit === null) {
+    error.usageLimit = "Usage limit is required";
+  } else if (usageLimit <= 0) {
+    error.usageLimit = "Usage limit must be greater than 0";
+  } else if (usageLimit > 50) {
+    error.usageLimit = "Usage limit cannot exceed 50";
+  }
+
+  setError(error);
+
+  // Return error object
+  if (Object.keys(error).length == 0) {
+    return true;
+  } else {
+    return false;
+  }
 }

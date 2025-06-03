@@ -7,9 +7,10 @@ import SavedItems from "@/Components/User/Profile/SavedItems";
 import Footer from "@/Components/User/Shared/Footer";
 import Header from "@/Components/User/Shared/Header";
 import UserSidebar from "@/Components/User/Shared/UserSidebar";
+import Wallet from "@/Components/User/Profile/Wallet";
 import { useSelector } from "react-redux";
 import { Route, Routes } from "react-router-dom";
-
+import Coupons from "@/Components/User/Profile/Coupons";
 function UserProfilePage() {
   const userData = useSelector((store) => store.user.userDetails);
 
@@ -44,7 +45,8 @@ function UserProfilePage() {
                   path="orderDetails/:order_id"
                   element={<OrderDetails />}
                 />
-
+                <Route path="wallet" element={<Wallet />} />
+                <Route path="coupons" element={<Coupons />} />
                 <Route path="changepassword" element={<ChangePassword />} />
               </Routes>
             </div>

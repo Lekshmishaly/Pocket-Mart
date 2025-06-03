@@ -6,15 +6,16 @@ import {
   Grid,
   Users,
   ShoppingCart,
-  Tag,
   Ticket,
   Settings,
   LogOut,
   Menu,
   X,
+  BadgeIndianRupee,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logoutAdmin } from "@/Redux/Slice/AdminSlice";
+import LogoutModal from "./LogoutModal";
 
 export default function AdminSidebar() {
   const dispatch = useDispatch();
@@ -49,21 +50,18 @@ export default function AdminSidebar() {
       label: "Orders",
       href: "/admin/orders",
     },
-    {
-      icon: Tag,
-      label: "Banner",
-      href: "/admin/banner",
-    },
+
     {
       icon: Ticket,
       label: "Coupon",
       href: "/admin/coupon",
     },
     {
-      icon: Settings,
-      label: "Settings",
-      href: "/admin/settings",
+      icon: BadgeIndianRupee,
+      label: "Sales Report",
+      href: "/admin/sales-report",
     },
+
     {
       icon: LogOut,
       label: "Logout",
@@ -156,27 +154,10 @@ export default function AdminSidebar() {
 
       {/* Logout Confirmation Popup */}
       {showLogoutConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Confirm Logout</h2>
-            <p className="mb-6">Are you sure you want to log out?</p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() => setShowLogoutConfirmation(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setShowLogoutConfirmation(false);
-                  handleLogout();
-                }}
-                className="px-4 py-2 bg-[#e07d6a] text-white rounded hover:bg-[#c56a59] transition-colors">
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
+        <LogoutModal
+          onClose={() => setShowLogoutConfirmation(false)}
+          onConfirm={handleLogout}
+        />
       )}
     </>
   );

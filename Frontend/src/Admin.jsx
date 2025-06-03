@@ -1,19 +1,48 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./Redux/Store";
 import Login from "./Components/Admin/Login";
-import Dashboard from "./Components/Admin/Dashboard";
-import AddCategory from "./Components/Admin/Category/AddCategory";
-import CategoriesList from "./Components/Admin/Category/CategoriesList";
-import EditCategory from "./Components/Admin/Category/EditCategory";
-import AdminSidebar from "./Components/Admin/Shared/AdminSidebar";
-import AddProduct from "./Components/Admin/Products/AddProduct";
-import ProductList from "./Components/Admin/Products/ProductList";
-import EditProduct from "./Components/Admin/Products/EditProduct";
-import ConsumersList from "./Components/Admin/ConsumersList";
-import ProtectedAdminHome from "./Private/ProtectedAdminHome";
-import OrdersList from "./Components/Admin/Order/OrdersList";
+import {
+  ProductManagement,
+  DashboardSkeleton,
+  EditCategorySkeleton,
+  CategorySkeleton,
+} from "./Components/ui/Skeletons";
+
+//Lazy Load Pages
+const Dashboard = lazy(() => import("./Components/Admin/Dashboard"));
+const AddCategory = lazy(() =>
+  import("./Components/Admin/Category/AddCategory")
+);
+const CategoriesList = lazy(() =>
+  import("./Components/Admin/Category/CategoriesList")
+);
+const EditCategory = lazy(() =>
+  import("./Components/Admin/Category/EditCategory")
+);
+const AdminSidebar = lazy(() =>
+  import("./Components/Admin/Shared/AdminSidebar")
+);
+const AddProduct = lazy(() => import("./Components/Admin/Products/AddProduct"));
+const ProductList = lazy(() =>
+  import("./Components/Admin/Products/ProductList")
+);
+const EditProduct = lazy(() =>
+  import("./Components/Admin/Products/EditProduct")
+);
+const ConsumersList = lazy(() => import("./Components/Admin/ConsumersList"));
+const ProtectedAdminHome = lazy(() => import("./Private/ProtectedAdminHome"));
+const OrdersList = lazy(() => import("./Components/Admin/Order/OrdersList"));
+const ProductOffer = lazy(() =>
+  import("./Components/Admin/Offer/ProductOffer")
+);
+const CategoryOffer = lazy(() =>
+  import("./Components/Admin/Offer/CategoryOffer")
+);
+const Coupons = lazy(() => import("./Components/Admin/Coupons/Coupons"));
+const AddCoupon = lazy(() => import("./Components/Admin/Coupons/AddCoupon"));
+const SalesReport = lazy(() => import("./Components/Admin/SalesReport"));
 
 function Admin() {
   return (
@@ -23,13 +52,14 @@ function Admin() {
           <AdminSidebar />
         </div>
         <div className="flex-grow lg:ml-64 p-2 md:p-6 overflow-y-auto ">
-          {" "}
           <Routes>
             <Route
               path="/dashboard"
               element={
                 <ProtectedAdminHome>
-                  <Dashboard />
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <Dashboard />
+                  </Suspense>
                 </ProtectedAdminHome>
               }
             />
@@ -42,19 +72,114 @@ function Admin() {
                 </ProtectedAdminHome>
               }
             />
-            <Route path="/categoriesList" element={<CategoriesList />} />
-            <Route path="/edit-categories/:id" element={<EditCategory />} />
+            <Route
+              path="/categoriesList"
+              element={
+                <Suspense fallback={<CategorySkeleton />}>
+                  <CategoriesList />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/edit-categories/:id"
+              element={
+                <Suspense fallback={<EditCategorySkeleton />}>
+                  <EditCategory />
+                </Suspense>
+              }
+            />
 
             {/* products  */}
-            <Route path="/add-product" element={<AddProduct />} />
-            <Route path="/productList" element={<ProductList />} />
-            <Route path="/edit-product/:id" element={<EditProduct />} />
+            <Route
+              path="/add-product"
+              element={
+                <Suspense fallback={<EditCategorySkeleton />}>
+                  <AddProduct />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/productList"
+              element={
+                <Suspense fallback={<ProductManagement />}>
+                  <ProductList />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/edit-product/:id"
+              element={
+                <Suspense fallback={<EditCategorySkeleton />}>
+                  <EditProduct />
+                </Suspense>
+              }
+            />
 
             {/* consumersList */}
-            <Route path="consumersList" element={<ConsumersList />} />
+            <Route
+              path="consumersList"
+              element={
+                <Suspense fallback={<CategorySkeleton />}>
+                  <ConsumersList />
+                </Suspense>
+              }
+            />
 
             {/* Order  */}
-            <Route path="orders" element={<OrdersList />} />
+            <Route
+              path="orders"
+              element={
+                <Suspense fallback={<CategorySkeleton />}>
+                  <OrdersList />
+                </Suspense>
+              }
+            />
+
+            {/* Offer */}
+            <Route
+              path="product-offer/:id/:productName"
+              element={
+                <ProtectedAdminHome>
+                  <ProductOffer />
+                </ProtectedAdminHome>
+              }
+            />
+            <Route
+              path="category-offer/:id/:categoryName"
+              element={
+                <ProtectedAdminHome>
+                  <CategoryOffer />
+                </ProtectedAdminHome>
+              }
+            />
+            {/* Coupens */}
+            <Route
+              path="/coupon"
+              element={
+                <ProtectedAdminHome>
+                  <Coupons />
+                </ProtectedAdminHome>
+              }
+            />
+            <Route
+              path="/addcoupon"
+              element={
+                <ProtectedAdminHome>
+                  <AddCoupon />
+                </ProtectedAdminHome>
+              }
+            />
+            {/* Sales-Report */}
+            <Route
+              path="/sales-report"
+              element={
+                <ProtectedAdminHome>
+                  <Suspense fallback={<CategorySkeleton />}>
+                    <SalesReport />
+                  </Suspense>
+                </ProtectedAdminHome>
+              }
+            />
           </Routes>
         </div>
       </div>

@@ -48,6 +48,16 @@ function UserSidebar() {
         Addresses
       </span>
       <span
+        onClick={() => navigate("/profile/wallet")}
+        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
+        My Wallet
+      </span>
+      <span
+        onClick={() => navigate("/profile/coupons")}
+        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
+        Coupons
+      </span>
+      <span
         onClick={() => navigate("/profile/changepassword")}
         className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
         Change Password

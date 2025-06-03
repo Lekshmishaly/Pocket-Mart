@@ -2,6 +2,10 @@ import axiosInstance from "@/Utils/AxiosConfig";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ConfirmationModal from "@/Components/Admin/Shared/ConfirmationModal";
+import { AlertCircle, FolderX } from "lucide-react";
+import { Button } from "@/Components/ui/button";
+import ConfirmationModalwithButtons from "../Shared/ConfirmationModalwithButtons";
+import Pagination from "@/Utils/Pagination";
 
 function OrdersPage() {
   const [reload, setreload] = useState(false);
@@ -13,12 +17,32 @@ function OrdersPage() {
     itemId: null,
     newStatus: "",
   });
+  const [modalContent, setModalContent] = useState({
+    title: "",
+    message: "",
+    onConfirm: null,
+    onCancel: null,
+  });
+  const [isOpenWithButton, setIsOpenWithButton] = useState(false);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const toggleOrderExpansion = (orderId) => {
+    setExpandedOrder(expandedOrder === orderId ? null : orderId);
+  };
+
+  //////////////////////////////// fectch order Deatils ////////////////////////////////
 
   async function fetchOrderDetails() {
     try {
-      const response = await axiosInstance.get("/admin/order");
-      // console.log("Fetched Order", response.data.orderData);
+      const response = await axiosInstance.get(
+        `/admin/order?page=${currentPage}&limit=8`
+      );
       setOrders(response.data.orderData);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Error fetching Order Details:", error);
       toast.error("Failed to fetch order details. Please try again.");
@@ -67,6 +91,10 @@ function OrdersPage() {
         return "bg-green-200 text-green-800";
       case "Cancelled":
         return "bg-red-200 text-red-800";
+      case "Returned":
+        return "bg-violet-200 text-violet-800";
+      case "Return Rejected":
+        return "bg-red-200 text-red-800";
       default:
         return "bg-gray-200 text-gray-800";
     }
@@ -83,10 +111,68 @@ function OrdersPage() {
     return statusMap[currentStatus] || [];
   };
 
+  async function handleReturnReq(orderId, itemId, reason, explanation) {
+    setModalContent({
+      title: "Return Order",
+      message: (
+        <div>
+          <div className="flex items-baseline">
+            <h2 className="text-lg font-medium text-gray-900 mr-2">Reason:</h2>
+            <p className=" text-lg font-medium  text-gray-500">{reason}</p>
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-lg font-medium text-gray-900 mr-2">
+              Explanation:
+            </h2>
+            <p className="text-lg font-light text-gray-600 whitespace-pre-wrap">
+              {explanation}
+            </p>
+          </div>
+        </div>
+      ),
+      onConfirm: async () => {
+        try {
+          const request_status = "Approved";
+          const response = await axiosInstance.patch("/admin/return/response", {
+            orderId,
+            itemId,
+            request_status,
+          });
+          toast.success(response.data.message);
+          setreload(true);
+        } catch (err) {
+          console.log(err);
+          if (err.response) {
+            toast.error(err.response.data.message);
+          }
+        }
+      },
+      onCancel: async () => {
+        try {
+          const request_status = "Rejected";
+          const response = await axiosInstance.patch("/admin/return/response", {
+            orderId,
+            itemId,
+            request_status,
+          });
+          toast.success(response.data.message);
+          setreload(true);
+        } catch (err) {
+          console.log(err);
+          if (err.response) {
+            toast.error(err.response.data.message);
+          }
+        }
+      },
+    });
+    setIsOpenWithButton(true);
+  }
+
   useEffect(() => {
-    fetchOrderDetails();
+    fetchOrderDetails(currentPage);
     setreload(false);
-  }, [reload]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [reload, currentPage]);
 
   return (
     <div className="min-h-screen bg-white p-4 sm:p-6 lg:p-8">
@@ -168,12 +254,29 @@ function OrdersPage() {
                         })}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        {order.shipping_address.firstname}
+                        {order.user.firstname} {order.user.lastname}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        ₹{order.total_amount}
+                        ₹{order.total_amount.toFixed(2)}
                       </td>
                       <td className="px-4 py-4 text-sm">
+                        {order.isReturnReq && (
+                          <Button
+                            onClick={() => toggleOrderExpansion(order._id)}
+                            variant="ghost"
+                            size="icon"
+                            className="text-amber-500 hover:text-amber-600 hover:bg-amber-100 transition-colors">
+                            <AlertCircle
+                              size={18}
+                              className={`transition-transform ${
+                                expandedOrder === order._id ? "scale-110" : ""
+                              }`}
+                            />
+                            <span className="sr-only">
+                              Toggle return request details
+                            </span>
+                          </Button>
+                        )}
                         <button
                           onClick={() =>
                             setExpandedOrder(
@@ -208,6 +311,11 @@ function OrdersPage() {
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
                                   Status
                                 </th>
+                                {order.isReturnReq && (
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                                    Return
+                                  </th>
+                                )}
                               </tr>
                             </thead>
                             <tbody>
@@ -259,6 +367,24 @@ function OrdersPage() {
                                         ))}
                                       </select>
                                     </td>
+                                    {item.return_request &&
+                                      item.return_request.status ===
+                                        "Pending" && (
+                                        <td className="px-3 py-2 whitespace-nowrap text-xs sm:text-sm">
+                                          <button
+                                            onClick={() => {
+                                              handleReturnReq(
+                                                order._id,
+                                                item._id,
+                                                item.return_request.reason,
+                                                item.return_request.explanation
+                                              );
+                                            }}
+                                            className={`mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm bg-yellow-200 hover:scale-105 hover:bg-yellow-300`}>
+                                            Pending Request
+                                          </button>
+                                        </td>
+                                      )}
                                   </tr>
                                 ))}
                             </tbody>
@@ -270,24 +396,37 @@ function OrdersPage() {
                 ))}
             </tbody>
           </table>
+          {orders.length == 0 && (
+            <div className="flex items-center justify-center h-[50vh]">
+              <div className="text-center">
+                <FolderX className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  No Orders Yet
+                </h1>
+              </div>
+            </div>
+          )}
+          <ConfirmationModalwithButtons
+            isOpen={isOpenWithButton}
+            onOpenChange={setIsOpenWithButton}
+            title="Return Request"
+            message={modalContent.message}
+            confirmText="Accept"
+            cancelText="Decline"
+            onConfirm={modalContent.onConfirm}
+            onCancel={modalContent.onCancel}
+          />
         </div>
 
         {/* Pagination */}
-        <div className="mt-6 flex justify-center">
-          <nav className="flex items-center space-x-2" aria-label="Pagination">
-            <button className="px-3 py-1 rounded-md bg-[#e07d6a] text-white hover:bg-[#9c4f3f] transition-colors">
-              1
-            </button>
-            <button className="px-3 py-1 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
-              2
-            </button>
-            <button className="px-3 py-1 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
-              3
-            </button>
-            <button className="px-3 py-1 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
-              »
-            </button>
-          </nav>
+        <div className="flex justify-center mt-6">
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          )}
         </div>
       </div>
 

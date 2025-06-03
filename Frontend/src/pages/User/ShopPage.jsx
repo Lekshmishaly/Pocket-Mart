@@ -10,6 +10,7 @@ function ShopPage() {
     <>
       <Header name={"Shop Page"} />
       <Shop search={search} />
+
       <Footer />
     </>
   );

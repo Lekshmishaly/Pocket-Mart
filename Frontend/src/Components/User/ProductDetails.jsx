@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import axiosInstance from "@/Utils/AxiosConfig";
+import { CalculateOfferPrice } from "@/Utils/CalculateOfferPrice";
 
 export default function ProductDetails({ product, isWishList, setreload }) {
   const userData = useSelector((store) => store.user.userDetails);
@@ -21,6 +22,12 @@ export default function ProductDetails({ product, isWishList, setreload }) {
   const [toggle, setToggle] = useState(false);
   const [error, setError] = useState({});
   const [averageRating, setAverageRating] = useState(0);
+
+  // offers
+
+  const [offerPrice, setofferPrice] = useState(0);
+  const [offerDiscountAmount, setofferDiscountAmount] = useState(null);
+  const [offerDiscountPercentage, setofferDiscountPercentage] = useState(null);
 
   ////////////////////////////////////// handle AddTo Cart ///////////////////////////////
 
@@ -116,9 +123,24 @@ export default function ProductDetails({ product, isWishList, setreload }) {
       console.error("Error handling remove wishlist:", error);
     }
   }
+
+  ///////////////////////////////////// offers ////////////////////////////////////////////
+
+  async function offers() {
+    const offerData = await CalculateOfferPrice(
+      product._id,
+      product.category,
+      product.price
+    );
+    setofferPrice(offerData.offerPrice);
+    setofferDiscountAmount(offerData.offerDiscountAmt);
+    setofferDiscountPercentage(offerData.offerDiscount);
+  }
+
   useEffect(() => {
     checkCartStatus();
     fetchAverageRating();
+    offers();
     const handleScroll = () => {
       if (!scrollContainerRef.current) return;
 
@@ -188,6 +210,8 @@ export default function ProductDetails({ product, isWishList, setreload }) {
         </button>
       </div>
 
+      {console.log("Offer Price:", offerPrice)}
+
       {/* Right side - Product Details */}
       <div className="lg:w-[40%] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-8 lg:h-screen lg:overflow-y-auto scrollbar-hide">
         <div className="w-full max-w-md">
@@ -197,14 +221,28 @@ export default function ProductDetails({ product, isWishList, setreload }) {
                 {product.name}
               </h1>
               <div className="flex items-center gap-2">
-                <span className="text-gray-500 line-through text-sm leading-relaxed font-Futura-Light">
-                  INR {product.price * 1.2}
-                </span>
-                <span className="text-[#8b5d4b] leading-relaxed text-sm font-Futura-Light">
-                  INR {product.price}
-                </span>
+                {typeof offerPrice === "number" && !isNaN(offerPrice) ? (
+                  <>
+                    {offerPrice !== product.price && (
+                      <span className="text-gray-500 line-through text-sm leading-relaxed font-Futura-Light">
+                        INR {product.price}
+                      </span>
+                    )}
+                    <span className="text-[#8b5d4b] leading-relaxed text-sm font-Futura-Light">
+                      INR {Math.round(offerPrice).toFixed(2)}
+                    </span>
+                  </>
+                ) : null}
+              </div>
+              <div>
+                {offerDiscountPercentage && (
+                  <p className="text-sm font-Futura-Light font-normal text-[#955238]">
+                    -{offerDiscountPercentage}%
+                  </p>
+                )}
               </div>
             </div>
+
             <div>
               {isWishList ? (
                 <button
@@ -258,7 +296,17 @@ export default function ProductDetails({ product, isWishList, setreload }) {
               setError={setError}
             />
           </div>
-
+          <div className="w-full text-right">
+            {product.stocks !== 0 ? (
+              <span className="text-[#e07d6a] text-sm font-Futura-Light">
+                Total stock left: {product.stocks}
+              </span>
+            ) : (
+              <span className="text-[#e07d6a] text-sm font-Futura-Light">
+                Out of stock
+              </span>
+            )}
+          </div>
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-4 mt-4">
             <button

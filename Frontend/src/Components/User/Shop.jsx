@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import axiosInstance from "@/Utils/AxiosConfig";
-import { Plus, Minus, X } from "lucide-react";
+import { Plus, Minus, X, PackageX } from "lucide-react";
 import { Button } from "../ui/button";
+import Pagination from "@/Utils/Pagination";
 
 export default function Shop({ search }) {
   const [products, setProducts] = useState([]);
@@ -17,8 +18,12 @@ export default function Shop({ search }) {
     price: 0,
   });
   const [categories, setCategories] = useState([]);
-  const [sortBy, setSortBy] = useState("");
-  const [tempSortBy, setTempSortBy] = useState(""); // Added tempSortBy state
+  const [sortBy, setSortBy] = useState("newest");
+  const [tempSortBy, setTempSortBy] = useState("newest");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const limit = 0;
 
@@ -28,26 +33,31 @@ export default function Shop({ search }) {
       : [...array, value];
   };
 
-  async function fetchProducts() {
-    try {
-      console.log("search", search);
+  /////////////////////////////////////////////////////////// fetch Products //////////////////////////////////////////////////////
 
+  async function fetchProducts(page = 1) {
+    try {
       const endpoint = search
         ? `/user/fetchproductdetails/${limit}/${search}`
         : `/user/fetchproductdetails/${limit}`;
 
-      const response = await axiosInstance.post(endpoint, { filter, sortBy });
-      console.log("sortBy:::", sortBy);
+      const response = await axiosInstance.post(
+        `${endpoint}?page=${page}&limits=9`,
+        { filter, sortBy }
+      );
+
       setProducts(response.data.ProductsData);
       setMaxPrice(response.data.maxPrice);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.log(error);
-      if (error.response) {
-        setProducts([]);
-        return console.log(error.response.data.message);
-      }
+      setProducts([]);
+      if (error.response) console.log(error.response.data.message);
     }
   }
+
+  // Category Fetch
 
   async function categoryFetch() {
     try {
@@ -62,13 +72,15 @@ export default function Shop({ search }) {
   }
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(currentPage);
     categoryFetch();
     setReload(false);
-  }, [search, reload]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [search, reload, currentPage]);
 
   const handleSortChange = (value) => {
-    setTempSortBy(value); // Updated handleSortChange
+    setTempSortBy(value);
+    setSortBy(value);
   };
 
   return (
@@ -247,20 +259,20 @@ export default function Shop({ search }) {
             <div className="flex gap-4 pt-4">
               <button
                 onClick={() => {
-                  fetchProducts();
-                  setIsFilterOpen(false);
-                }}
-                className="flex-1 py-2 px-4 border border-[#8b5d4b] text-[#93624c] hover:bg-[#8b5d4b] hover:text-white transition-colors text-sm font-Futura-Light">
-                APPLY FILTERS
-              </button>
-              <button
-                onClick={() => {
                   setFilter({ categories: [], sleeves: [], price: 0 });
                   setIsFilterOpen(false);
                   setReload(true);
                 }}
                 className="flex-1 py-2 px-4 border border-[#8b5d4b] text-[#93624c] hover:bg-[#8b5d4b] hover:text-white transition-colors text-sm font-Futura-Light">
                 CLEAR ALL
+              </button>
+              <button
+                onClick={() => {
+                  fetchProducts();
+                  setIsFilterOpen(false);
+                }}
+                className="flex-1 py-2 px-4 border border-[#8b5d4b] text-[#93624c] hover:bg-[#8b5d4b] hover:text-white transition-colors text-sm font-Futura-Light">
+                APPLY FILTERS
               </button>
             </div>
           </div>
@@ -324,19 +336,31 @@ export default function Shop({ search }) {
 
         {/* Product Grid */}
         <div className="w-full transition-all duration-300 ease-in-out">
-          <div
-            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8 2xl:gap-10 `}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8 2xl:gap-10">
             {Array.isArray(products) && products.length > 0 ? (
               products.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))
             ) : (
-              <div className="col-span-full text-center text-[#8b5d4b] font-Futura-Light text-lg">
-                Product not found ... :/\:
+              <div className="col-span-full flex flex-col items-center justify-center text-[#8b5d4b] font-Futura-Light text-lg">
+                <PackageX
+                  className="w-12 h-12 mb-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                Product not found
               </div>
             )}
           </div>
         </div>
+      </div>
+      <div className="flex justify-end mt-6">
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        )}
       </div>
     </div>
   );
