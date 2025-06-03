@@ -19,9 +19,11 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    offer: {
-      type: Number,
-      default: 0,
+
+    appliedOffer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Offer",
+      default: null,
     },
     stocks: {
       type: Number,

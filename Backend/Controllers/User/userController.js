@@ -7,10 +7,12 @@ const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
 const { mailSender } = require("../../Utils/nodeMailer");
 const otpEmailTemplate = require("../../Utils/emailTemplate");
+const generateReferralCode = require("../../Utils/generateReferralCode");
 
 //functions
 const generateAccessToken = require("../../Utils/genarateAccessToken");
 const generateRefreshToken = require("../../Utils/genarateRefreshToken");
+const Wallet = require("../../Models/walletModel");
 
 //////////////////////////////////// send otp /////////////////////////////////
 
@@ -51,7 +53,7 @@ async function createUser(req, res) {
       req.body;
 
     const hashedPassword = await bcrypt.hash(userPassword, 10);
-
+    const referralCode = generateReferralCode(userFirstName);
     // Create new user
     await User.create({
       firstname: userFirstName,
@@ -59,6 +61,7 @@ async function createUser(req, res) {
       email: userEmail,
       phone: userMobile,
       password: hashedPassword,
+      referralCode,
     });
 
     return res.status(200).json({
@@ -351,6 +354,143 @@ async function changePassword(req, res) {
   }
 }
 
+/////////////////////////////////////////////////////// Register With Referral ////////////////////////////////////////////////////
+
+async function referral(req, res) {
+  try {
+    const { referralCode, _id } = req.body;
+    const referralAmount = 200;
+
+    // Validate referred user
+    const user = await User.findById(_id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    if (user.usedReferral) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Referral already used" });
+    }
+
+    // Validate referrer
+    const referrer = await User.findOne({ referralCode: referralCode });
+    if (!referrer) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Invalid Referral Code" });
+    }
+
+    // Update referrer's wallet
+    let referralWallet = await Wallet.findOne({ user: referrer._id });
+
+    if (!referralWallet) {
+      referralWallet = await Wallet.create({
+        user: referrer._id,
+        balance: referralAmount,
+        transactions: [
+          {
+            transaction_type: "credit",
+            transaction_status: "completed",
+            amount: referralAmount,
+          },
+        ],
+      });
+    } else {
+      referralWallet = await Wallet.findOneAndUpdate(
+        { user: referrer._id },
+        {
+          $inc: { balance: referralAmount },
+          $push: {
+            transactions: {
+              transaction_type: "credit",
+              transaction_status: "completed",
+              amount: referralAmount,
+            },
+          },
+        },
+        { new: true }
+      );
+    }
+
+    // Update referred user's wallet
+    let userWallet = await Wallet.findOne({ user: user._id });
+
+    if (!userWallet) {
+      userWallet = await Wallet.create({
+        user: user._id,
+        balance: referralAmount,
+        transactions: [
+          {
+            transaction_type: "credit",
+            transaction_status: "completed",
+            amount: referralAmount,
+          },
+        ],
+      });
+    } else {
+      userWallet = await Wallet.findOneAndUpdate(
+        { user: user._id },
+        {
+          $inc: { balance: referralAmount },
+          $push: {
+            transactions: {
+              transaction_type: "credit",
+              transaction_status: "completed",
+              amount: referralAmount,
+            },
+          },
+        },
+        { new: true }
+      );
+    }
+
+    // Mark referral as used
+    user.usedReferral = true;
+    await user.save();
+
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
+
+    return res.status(200).json({
+      success: true,
+      message: "Referral reward credited to both wallets!",
+      updatedUser,
+    });
+  } catch (err) {
+    console.error("Referral Error:", err.message || err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+/////////////////////////////////////////////////////// skip Referal ////////////////////////////////////////////////////
+
+async function skipReferral(req, res) {
+  try {
+    const { _id } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      _id,
+      { usedReferral: true },
+      { new: true }
+    );
+
+    updatedUser.password = undefined;
+
+    return res.status(200).json({
+      success: true,
+      updatedUser,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while skipping referral",
+    });
+  }
+}
 module.exports = {
   sendOtp,
   createUser,
@@ -361,4 +501,6 @@ module.exports = {
   resetPassword,
   logout,
   changePassword,
+  referral,
+  skipReferral,
 };

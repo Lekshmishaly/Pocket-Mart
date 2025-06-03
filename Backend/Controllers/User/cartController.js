@@ -1,4 +1,5 @@
 const Cart = require("../../Models/cartModel");
+const calculateProductOfferinCart = require("../../Utils/calculateProductOfferinCart");
 
 /////////////////////////////// Add to Cart //////////////////////////////
 
@@ -66,9 +67,11 @@ async function addToCart(req, res) {
 
     await cart.save();
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Item added to cart" });
+    return res.status(200).json({
+      success: true,
+      message: "Item added to cart",
+      items: cart.items,
+    });
   } catch (error) {
     console.error("Error in addToCart:", error);
     return res.status(500).json({
@@ -113,6 +116,10 @@ async function fetchCart(req, res) {
     // Find the user cart and populate the product details
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "items.productId",
+      populate: [
+        { path: "category", populate: { path: "appliedOffer" } }, // Populate category and its offer
+        { path: "appliedOffer" }, // Populate product's own offer
+      ],
     });
 
     if (!cart) {
@@ -139,18 +146,33 @@ async function fetchCart(req, res) {
       }
     });
 
+    // Calculate offers for each item
+    cart.items.forEach((item) => {
+      calculateProductOfferinCart(item);
+    });
+
     // Recalculate totalProductPrice
     cart.items.forEach((item) => {
-      item.totalProductPrice = item.price * item.qty;
+      item.totalProductPrice = item.qty * item.discountedAmount;
     });
 
     // Filter out inactive products
     cart.items = cart.items.filter((item) => item.productId?.isActive);
+
     cart.totalCartValue = cart.items.reduce(
-      (total, item) => total + item.totalProductPrice,
+      (total, item) => total + (item.totalProductPrice || 0),
       0
     );
-    cart.items;
+
+    console.log(" cart.totalCartValue", cart.totalCartValue);
+
+    cart.total_discount = cart.items.reduce(
+      (total, item) => total + (item.discountAmount || 0) * (item.qty || 0),
+      0
+    );
+
+    console.log(" cart.total_discount", cart.total_discount);
+
     await cart.save();
     return res.status(200).json({
       success: true,
@@ -158,6 +180,7 @@ async function fetchCart(req, res) {
       cartItems: {
         items: cart.items,
         totalCartValue: cart.totalCartValue,
+        totalDiscount: cart.total_discount,
       },
     });
   } catch (error) {

@@ -44,11 +44,14 @@ async function fetchReview(req, res) {
       select: "firstname lastname",
     });
 
-    if (!reviewData) {
+    if (!reviewData || reviewData.length === 0) {
       return res
-        .status(401)
-        .json({ success: false, message: "Reviews not found" });
+        .status(404)
+        .json({ success: false, message: "No reviews found" });
     }
+
+    console.log("reviewData:", reviewData);
+
     return res.status(200).json({ success: true, reviewData });
   } catch (error) {
     console.error("Error in fetching Review :", error);

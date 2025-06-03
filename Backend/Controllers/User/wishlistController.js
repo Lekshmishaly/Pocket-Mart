@@ -89,14 +89,14 @@ async function checkIsExistOnWishlist(req, res) {
   try {
     const { product_id, user_id } = req.params;
 
-    console.log("Product ID:", product_id, "User ID:", user_id);
+    // console.log("Product ID:", product_id, "User ID:", user_id);
 
     const wishlist = await Wishlist.findOne({ userId: user_id });
 
     const wishlistValue =
       wishlist &&
       wishlist.items.some((item) => item.productId.toString() === product_id);
-    console.log("wishlistValue::", wishlistValue);
+    // console.log("wishlistValue::", wishlistValue);
     if (wishlistValue) {
       return res.status(200).json({
         success: true,

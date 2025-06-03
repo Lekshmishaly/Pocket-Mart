@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { nanoid } = require("nanoid");
 
 const orderSchema = new mongoose.Schema({
   user: {
@@ -20,7 +21,6 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-
       qty: {
         type: Number,
         required: true,
@@ -30,19 +30,59 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
+      discount: {
+        type: Number,
+        required: true,
+        min: [0, "Discount cannot be negative"],
+        max: [100, "Discount cannot exceed 100%"],
+        default: 0,
+      },
       order_status: {
         type: String,
         required: true,
-        enum: ["Pending", "Shipped", "Delivered", "Cancelled"],
+        enum: [
+          "Pending",
+          "Shipped",
+          "Delivered",
+          "Cancelled",
+          "Returned",
+          "Return Rejected",
+        ],
         default: "Pending",
       },
-
+      payment_status: {
+        type: String,
+        required: true,
+        enum: ["Pending", "Paid", "Failed", "Refunded"],
+        default: "Pending",
+      },
       Delivered_on: {
         type: Date,
       },
       total_price: {
         type: Number,
         required: true,
+      },
+      // 📌 Added Cancellation Fields
+      cancel_request: {
+        status: {
+          type: String,
+          enum: ["Pending", "Cancelled"],
+          default: null,
+        },
+        reason: { type: String, default: null },
+        requestedAt: { type: Date, default: null },
+      },
+
+      return_request: {
+        status: {
+          type: String,
+          enum: ["Pending", "Approved", "Rejected"],
+          default: null,
+        },
+        reason: { type: String, default: null },
+        explanation: { type: String, default: null },
+        requestedAt: { type: Date, default: null },
       },
     },
   ],
@@ -72,11 +112,19 @@ const orderSchema = new mongoose.Schema({
     enum: ["Razor Pay", "wallet", "Cash on Delivery"],
     default: "Cash on Delivery",
   },
-  payment_status: {
-    type: String,
+  total_discount: {
+    type: Number,
+    default: 0,
+    min: [0, "Discount cannot be negative"],
+    default: 0,
+  },
+  coupon_discount: {
+    type: Number,
+    default: 0,
+  },
+  total_price_with_discount: {
+    type: Number,
     required: true,
-    enum: ["Pending", "Paid", "Failed"],
-    default: "Pending",
   },
   shipping_fee: {
     type: Number,
@@ -94,6 +142,10 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  isReturnReq: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 orderSchema.pre("save", function (next) {
@@ -104,13 +156,14 @@ orderSchema.pre("save", function (next) {
   }
   next();
 });
+
 orderSchema.pre("save", function (next) {
   if (!this.order_id) {
-    const uniqueId = `PKM${Date.now()}${Math.floor(Math.random() * 1000)}`;
-    this.order_id = uniqueId;
+    this.order_id = `PKM-${nanoid(10)}`;
   }
   next();
 });
+
 orderSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();

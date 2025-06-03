@@ -32,24 +32,33 @@ async function addCategory(req, res) {
 
 async function fetchCategories(req, res) {
   try {
-    const categoryData = await categoryModel.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    const skip = (page - 1) * limit;
 
-    if (categoryData.length === 0) {
+    const categoryData = await categoryModel.find().skip(skip).limit(limit);
+
+    const totalCategories = await categoryModel.countDocuments();
+
+    if (!categoryData.length) {
       return res
-        .status(401)
+        .status(404)
         .json({ success: false, message: "No categories found" });
     }
 
     return res.status(200).json({
       success: true,
-      message: "categories fetched successfully",
+      message: "Categories fetched successfully",
       categoryData,
+      currentPage: page,
+      totalPages: Math.ceil(totalCategories / limit),
+      totalCategories,
     });
   } catch (error) {
     console.log(error);
     return res
       .status(500)
-      .json({ success: false, message: "Server internal errors" });
+      .json({ success: false, message: "Server internal error" });
   }
 }
 

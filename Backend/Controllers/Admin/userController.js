@@ -1,24 +1,39 @@
 const bcrypt = require("bcrypt");
 const User = require("../../Models/userModel");
 
+//////////////////////////////////////////////////////////// ConsumerList /////////////////////////////////////////////////////
+
 async function ConsumerList(req, res) {
   try {
-    const userDetails = await User.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
 
-    if (!userDetails) {
-      return res
-        .status(404)
-        .json({ success: false, message: "user fetch failed" });
-    }
-    return res.status(200).json({
+    const totalUsers = await User.countDocuments();
+
+    const totalPages = Math.ceil(totalUsers / limit);
+    const skip = (page - 1) * limit;
+
+    const userDetails = await User.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
       success: true,
       message: "Users fetched successfully",
       userDetails,
+      currentPage: page,
+      totalPages,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error in ConsumerList:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 }
+
 /////////////////////////// consumer blocking //////////////////////
 async function toggleConsumer(req, res) {
   try {

@@ -54,11 +54,22 @@ async function addProduct(req, res) {
 
 async function fetchProducts(req, res) {
   try {
-    const ProductsData = await productModel.find().populate("category");
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+
+    const skip = (page - 1) * limit;
+
+    const totalCount = await productModel.countDocuments();
+
+    const ProductsData = await productModel
+      .find()
+      .populate("category")
+      .skip(skip)
+      .limit(limit);
 
     if (ProductsData.length === 0) {
       return res
-        .status(401)
+        .status(404)
         .json({ success: false, message: "No Products found" });
     }
 
@@ -66,14 +77,18 @@ async function fetchProducts(req, res) {
       success: true,
       message: "Products fetched successfully",
       ProductsData,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+      totalCount,
     });
   } catch (error) {
-    console.log(error);
+    console.log("Fetch Products Error:", error);
     return res
       .status(500)
-      .json({ success: false, message: "Server internal errors" });
+      .json({ success: false, message: "Server internal error" });
   }
 }
+
 /////////////////////// product status controlling ///////////////////////////
 
 async function toggleProduct(req, res) {
@@ -129,9 +144,14 @@ async function fetchProduct(req, res) {
       .json({ success: false, message: "Server internal errors" });
   }
 }
+
+////////////////////////////////////// edit product ///////////////////////////////////
+
 async function editProduct(req, res) {
   try {
     const { product, images } = req.body;
+
+    console.log("checking", req.body);
 
     if (images) {
       product.images = [...product.images, ...images];

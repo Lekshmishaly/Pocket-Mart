@@ -32,6 +32,14 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    referralCode: {
+      type: String,
+      unique: true,
+    },
+    usedReferral: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true, // Automatically add createdAt and updatedAt fields

@@ -10,6 +10,9 @@ const orderController = require("../Controllers/User/OrderController");
 const reviewController = require("../Controllers/User/reviewController");
 const categoryController = require("../Controllers/User/categoryController");
 const wishlistController = require("../Controllers/User/wishlistController");
+const walletController = require("../Controllers/User/walletController");
+const offerController = require("../Controllers/User/offerController");
+const couponController = require("../Controllers/User/couponController");
 
 // Rate limiter to prevent abuse
 const resetPasswordLimiter = rateLimit({
@@ -44,7 +47,8 @@ userRoute.post(
 
 userRoute.post("/googleAuth", userController.googleAuth);
 userRoute.put("/changepassword", userController.changePassword);
-
+userRoute.post("/referral", userController.referral);
+userRoute.patch("/referal/skip", userController.skipReferral);
 //Product controller routes
 userRoute.get("/product/home/:limit", productController.fetchProductsHome);
 userRoute.post(
@@ -72,10 +76,12 @@ userRoute.put("/cart/remove-items", cartController.removeOrderItems);
 
 //Order controller routes
 userRoute.post("/order", orderController.addOrder);
-userRoute.get("/cart/checkout/:id", orderController.fetchCartToCheckout);
 userRoute.get("/fetchorders/:userId", orderController.fetchOrders);
 userRoute.get("/fetchorder/:order_id", orderController.fetchOrder);
 userRoute.patch("/order/cancel", orderController.orderCancel);
+userRoute.post("/return/request", orderController.returnRequest);
+userRoute.put("/order-success/:orderId", orderController.retryPayment);
+userRoute.get("/invoice/:orderId", orderController.generateInvoice);
 
 //Review controller routes
 userRoute.post("/product/review", reviewController.addReview);
@@ -99,4 +105,16 @@ userRoute.delete(
   "/wishlist/:product_id/:user_id",
   wishlistController.removeFromWishlist
 );
+
+//Wallet controller routes
+userRoute.post("/wallet/add-money", walletController.addMoneytoWallet);
+userRoute.get("/wallet", walletController.fetchWallet);
+userRoute.post("/wallet/deduct", walletController.deductMoneyFromWallet);
+
+//offer constroller route
+userRoute.get("/offer", offerController.fetchBoldOffer);
+
+//coupon Controller routes
+userRoute.get("/coupon", couponController.fetchCouponDetails);
+userRoute.patch("/coupon", couponController.updateCoupon);
 module.exports = userRoute;

@@ -37,6 +37,9 @@ async function manageStock(order_items) {
 async function manageStockAfterCancel(item) {
   try {
     const { productId, qty, size } = item;
+
+    console.log("DONE+++>>>");
+    console.log("itemssssss>>", item);
     const productData = await productModel.findById(productId);
     if (!productData) {
       return console.log("Product not found");

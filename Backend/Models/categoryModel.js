@@ -15,7 +15,11 @@ const categorySchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-
+  appliedOffer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Offer",
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

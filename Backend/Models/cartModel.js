@@ -32,6 +32,21 @@ const CartSchema = new mongoose.Schema(
           required: true,
           default: 1,
         },
+        discount: {
+          type: Number,
+          min: 0,
+          default: 0,
+        },
+        discountedAmount: {
+          type: Number,
+          min: 0,
+          default: 0,
+        },
+        discountAmount: {
+          type: Number,
+          min: 0,
+          default: 0,
+        },
         totalProductPrice: {
           type: Number,
           require: true,
@@ -47,6 +62,11 @@ const CartSchema = new mongoose.Schema(
           0
         );
       },
+    },
+    total_discount: {
+      type: Number,
+      required: true,
+      default: 0,
     },
   },
   { timestamps: true }

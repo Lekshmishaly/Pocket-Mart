@@ -1,31 +1,41 @@
 const Order = require("../../Models/orderModel");
+const { refundAmounttoWallet } = require("../../Utils/refundAmounttoWallet");
 
 ////////////////////////////// fetch Order //////////////////////////////
 
 async function fetchOrder(req, res) {
   try {
-    const orderData = await Order.find().populate({
-      path: "order_items.productId",
-    });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 8;
+    const skip = (page - 1) * limit;
 
-    // console.log("orderData:::::::::::::::::::::::::", orderData);
+    const totalOrders = await Order.countDocuments();
+
+    const orderData = await Order.find()
+      .populate("user")
+      .populate({ path: "order_items.productId" })
+      .sort({ placed_at: -1 })
+      .skip(skip)
+      .limit(limit);
 
     if (!orderData) {
       return res
         .status(400)
-        .json({ message: "Orders not Found", success: false });
+        .json({ message: "Orders not found", success: false });
     }
 
     return res.status(200).json({
       success: true,
-      message: "All Orders Fetch successfully",
+      message: "Orders fetched successfully",
       orderData,
+      totalPages: Math.ceil(totalOrders / limit),
+      currentPage: page,
     });
   } catch (error) {
-    console.error("Error in  Order Fecth:", error);
+    console.error("Error in Order Fetch:", error);
     return res.status(500).json({
       success: false,
-      message: "An error occurred while  Order fecthing",
+      message: "An error occurred while fetching orders",
     });
   }
 }
@@ -65,7 +75,51 @@ async function changeStatus(req, res) {
     });
   }
 }
+
+///////////////////////////////////// Respond To Return Request /////////////////////////////////
+
+async function respondToReturnRequest(req, res) {
+  try {
+    const { orderId, itemId, request_status } = req.body;
+
+    const orderData = await Order.findOne({ _id: orderId });
+
+    const returnItem = orderData.order_items.find((item) => item._id == itemId);
+
+    returnItem.return_request.status = request_status;
+    orderData.isReturnReq = false;
+
+    if (request_status === "Approved") {
+      returnItem.order_status = "Returned";
+      returnItem.payment_status = "Refunded";
+    } else {
+      returnItem.order_status = "Return Rejected";
+      returnItem.payment_status = "Paid";
+    }
+
+    await orderData.save(); // Make sure to await the save operation
+
+    console.log("checking Status", returnItem.order_status);
+
+    if (returnItem.order_status === "Returned") {
+      const refundAmount = returnItem.total_price;
+      refundAmounttoWallet(orderData.user, refundAmount);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        request_status === "Approved"
+          ? `Return Request ${request_status} and Amount refunded to wallet`
+          : `Return Request ${request_status}`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+}
 module.exports = {
   fetchOrder,
   changeStatus,
+  respondToReturnRequest,
 };
