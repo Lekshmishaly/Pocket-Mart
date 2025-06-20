@@ -1,3 +1,7 @@
+// Import Google Auth Library
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 //models
 const User = require("../../Models/userModel");
 const otpSchema = require("../../Models/otpModel");
@@ -140,7 +144,7 @@ async function userLogin(req, res) {
   }
 }
 
-/////////////////////////////// google Login /////////////////////////////////
+///////////////////////////////// google Auth //////////////////////////////////
 
 async function googleAuth(req, res) {
   try {
@@ -175,7 +179,7 @@ async function googleAuth(req, res) {
       const userData = await newUser.save();
       return res.status(201).json({
         success: true,
-        message: "You are Registered, Welcome to Stitchers",
+        message: "You are Registered, Welcome to Pocket Mart",
         userData,
       });
     }
@@ -185,7 +189,7 @@ async function googleAuth(req, res) {
   }
 }
 
-//////////////////////////// edit profile //////////////////////////////
+/////////////////////////////////// edit profile //////////////////////////////////
 
 async function editUser(req, res) {
   try {
@@ -476,6 +480,13 @@ async function skipReferral(req, res) {
       { usedReferral: true },
       { new: true }
     );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     updatedUser.password = undefined;
 

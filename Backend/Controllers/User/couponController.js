@@ -52,7 +52,7 @@ async function updateCoupon(req, res) {
     }
 
     await couponData.save();
-    console.log(":::::::couponData:::::::>>>>>", couponData);
+
     res.status(200).json({ message: "Coupon updated successfully" });
   } catch (err) {
     console.log("Error updating coupon:", err);

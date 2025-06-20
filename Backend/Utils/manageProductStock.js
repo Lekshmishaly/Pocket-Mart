@@ -4,20 +4,17 @@ const productModel = require("../Models/productModel");
 
 async function manageStock(order_items) {
   try {
-    console.log("bloooop :::>", order_items);
     for (const item of order_items) {
       const { productId, qty, size } = item;
       const productData = await productModel.findById(productId);
 
       if (!productData) {
-        console.log("product not found");
         continue;
       }
 
       const sizeIndex = productData.sizes.findIndex((s) => s.size === size);
 
       if (sizeIndex === -1) {
-        console.log("Size not found in product:", size);
         continue;
       }
 
@@ -38,8 +35,6 @@ async function manageStockAfterCancel(item) {
   try {
     const { productId, qty, size } = item;
 
-    console.log("DONE+++>>>");
-    console.log("itemssssss>>", item);
     const productData = await productModel.findById(productId);
     if (!productData) {
       return console.log("Product not found");

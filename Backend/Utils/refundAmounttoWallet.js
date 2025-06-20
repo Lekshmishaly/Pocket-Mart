@@ -5,11 +5,9 @@ async function refundAmounttoWallet(userId, refundAmt) {
     const _id = userId;
     const amount = refundAmt;
 
-    console.log("Refund checking userID::>>", _id);
     let myWallet = await Wallet.findOne({ user: _id });
 
     if (!myWallet) {
-      console.log("no wallet existing");
       myWallet = new Wallet({
         user: _id,
         balance: amount,

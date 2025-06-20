@@ -4,12 +4,7 @@ const Wallet = require("../../Models/walletModel");
 
 async function addMoneytoWallet(req, res) {
   try {
-    console.log("Request Body:", req.body);
-
     const { amount, userID } = req.body;
-
-    // console.log("amount--------->", amount);
-    // console.log("userID==================>", userID);
 
     // ✅ Convert `amount` to a number
     const numericAmount = Number(amount);
@@ -47,7 +42,7 @@ async function addMoneytoWallet(req, res) {
     });
 
     await myWallet.save();
-    console.log("myWallet====>>", myWallet);
+
     return res
       .status(200)
       .json({ success: true, message: "Amount added to wallet successfully." });
@@ -113,14 +108,8 @@ async function fetchWallet(req, res) {
 
 async function deductMoneyFromWallet(req, res) {
   try {
-    console.log("Request Body:", req.body); // Debugging
-
     const { userID, orderID, total_amount } = req.body; // Use total_amount from the order
-    const amount = Number(total_amount); // Explicitly convert to number
-
-    console.log("Deduct amount--------->", amount);
-    console.log("userID==================>", userID);
-    console.log("orderID==================>", orderID);
+    const amount = Number(total_amount);
 
     // ✅ Validate Input
     if (!amount || !userID || !orderID) {
@@ -160,7 +149,6 @@ async function deductMoneyFromWallet(req, res) {
 
     await myWallet.save();
 
-    console.log("Updated Wallet====>>", myWallet);
     return res.status(200).json({
       success: true,
       message: "Amount deducted from wallet successfully.",

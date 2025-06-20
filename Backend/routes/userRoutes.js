@@ -49,6 +49,7 @@ userRoute.post("/googleAuth", userController.googleAuth);
 userRoute.put("/changepassword", userController.changePassword);
 userRoute.post("/referral", userController.referral);
 userRoute.patch("/referal/skip", userController.skipReferral);
+
 //Product controller routes
 userRoute.get("/product/home/:limit", productController.fetchProductsHome);
 userRoute.post(

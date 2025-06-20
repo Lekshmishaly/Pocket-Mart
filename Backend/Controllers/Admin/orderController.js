@@ -99,8 +99,6 @@ async function respondToReturnRequest(req, res) {
 
     await orderData.save(); // Make sure to await the save operation
 
-    console.log("checking Status", returnItem.order_status);
-
     if (returnItem.order_status === "Returned") {
       const refundAmount = returnItem.total_price;
       refundAmounttoWallet(orderData.user, refundAmount);

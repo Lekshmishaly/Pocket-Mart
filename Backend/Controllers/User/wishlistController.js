@@ -71,7 +71,7 @@ async function fetchWishlist(req, res) {
         .status(404)
         .json({ success: false, message: "Wishlist not found" });
     }
-    // console.log("Fetching wishlist:::", wishlist);
+
     return res.status(200).json({ success: true, wishlist });
   } catch (err) {
     console.error("Error fetching wishlist:", err);
@@ -89,14 +89,12 @@ async function checkIsExistOnWishlist(req, res) {
   try {
     const { product_id, user_id } = req.params;
 
-    // console.log("Product ID:", product_id, "User ID:", user_id);
-
     const wishlist = await Wishlist.findOne({ userId: user_id });
 
     const wishlistValue =
       wishlist &&
       wishlist.items.some((item) => item.productId.toString() === product_id);
-    // console.log("wishlistValue::", wishlistValue);
+
     if (wishlistValue) {
       return res.status(200).json({
         success: true,
@@ -124,8 +122,6 @@ async function checkIsExistOnWishlist(req, res) {
 async function removeFromWishlist(req, res) {
   try {
     const { product_id, user_id } = req.params;
-
-    console.log("product id", product_id);
 
     let wishlist = await Wishlist.findOne({ userId: user_id });
     wishlist.items = wishlist.items.filter((item) => {

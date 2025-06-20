@@ -164,14 +164,10 @@ async function fetchCart(req, res) {
       0
     );
 
-    console.log(" cart.totalCartValue", cart.totalCartValue);
-
     cart.total_discount = cart.items.reduce(
       (total, item) => total + (item.discountAmount || 0) * (item.qty || 0),
       0
     );
-
-    console.log(" cart.total_discount", cart.total_discount);
 
     await cart.save();
     return res.status(200).json({

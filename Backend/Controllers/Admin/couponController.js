@@ -75,7 +75,6 @@ async function deleteCoupon(req, res) {
     const { _id } = req.query;
 
     const deleted = await Coupon.findByIdAndDelete(_id);
-    console.log("+++++++++++", deleted);
 
     if (deleted) {
       return res.status(200).json({ message: "Deleted successfully" });

@@ -13,7 +13,6 @@ async function addProduct(req, res) {
       images,
       category,
     } = req.body;
-    console.log("name::::>", name);
 
     const isExist = await productModel.findOne({ name });
     if (isExist) {
@@ -65,7 +64,8 @@ async function fetchProducts(req, res) {
       .find()
       .populate("category")
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .sort({ createdAt: -1 });
 
     if (ProductsData.length === 0) {
       return res
@@ -150,8 +150,6 @@ async function fetchProduct(req, res) {
 async function editProduct(req, res) {
   try {
     const { product, images } = req.body;
-
-    console.log("checking", req.body);
 
     if (images) {
       product.images = [...product.images, ...images];

@@ -3,9 +3,6 @@ function calculateProductOfferinCart(item) {
   const categoryOffer =
     item.productId.category.appliedOffer?.discountValue || 0;
 
-  console.log("Product Offer:", productOffer);
-  console.log("Category Offer:", categoryOffer);
-
   let discountAmount = 0;
   let discountPercentage = 0;
 
@@ -20,8 +17,6 @@ function calculateProductOfferinCart(item) {
     discountAmount = (item.price * productOffer) / 100;
     discountPercentage = productOffer;
   }
-
-  console.log("Final discountAmount outside:", discountAmount);
 
   // final price after discount
   const discountedAmount = item.price - discountAmount;

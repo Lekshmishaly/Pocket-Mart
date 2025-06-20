@@ -48,7 +48,7 @@ async function toggleConsumer(req, res) {
         new: true,
       }
     );
-    console.log(updateDetails);
+
     if (!updateDetails) {
       return res
         .status(400)

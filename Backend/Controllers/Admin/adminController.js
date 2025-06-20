@@ -14,7 +14,6 @@ async function createAdmin(req, res) {
       role: "admin",
     });
 
-    console.log("Admin user created successfully!");
     res.json({ message: "Admin user created successfully!" });
   } catch (error) {
     console.error("Error creating admin user:", error);

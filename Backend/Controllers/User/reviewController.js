@@ -39,18 +39,18 @@ async function fetchReview(req, res) {
   try {
     const { productId } = req.params;
 
-    const reviewData = await Reviews.find({ product: productId }).populate({
-      path: "user",
-      select: "firstname lastname",
-    });
+    const reviewData = await Reviews.find({ product: productId })
+      .populate({
+        path: "user",
+        select: "firstname lastname",
+      })
+      .sort({ updatedAt: -1 });
 
     if (!reviewData || reviewData.length === 0) {
       return res
         .status(404)
         .json({ success: false, message: "No reviews found" });
     }
-
-    console.log("reviewData:", reviewData);
 
     return res.status(200).json({ success: true, reviewData });
   } catch (error) {

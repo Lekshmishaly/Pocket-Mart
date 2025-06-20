@@ -35,10 +35,15 @@ const userSchema = mongoose.Schema(
     referralCode: {
       type: String,
       unique: true,
+      sparse: true,
     },
     usedReferral: {
       type: Boolean,
       default: false,
+    },
+    googleId: {
+      type: String,
+      trim: true,
     },
   },
   {

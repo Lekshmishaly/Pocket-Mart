@@ -51,7 +51,6 @@ async function jwtVerification(req, res, next) {
       const user = await User.findById(Accessverified.id).select("-password");
 
       if (!user) {
-        console.log("no user");
         return res
           .status(401)
           .json({ message: "Unauthorized: User not found" });
@@ -68,8 +67,6 @@ async function jwtVerification(req, res, next) {
 
       const user = await User.findById(RefreshVerified.id).select("-password");
       if (!user) {
-        console.log("no user");
-
         return res
           .status(401)
           .json({ message: "Unauthorized: User not found" });
@@ -88,7 +85,6 @@ async function jwtVerification(req, res, next) {
       return next();
     }
 
-    console.log("no user");
     return res
       .status(401)
       .json({ message: "Unauthorized: No valid tokens found" });

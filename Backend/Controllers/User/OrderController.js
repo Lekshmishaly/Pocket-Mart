@@ -15,6 +15,7 @@ const {
   generatePaymentSummary,
   generateFooter,
 } = require("../../Utils/invoiceGenerator");
+
 ////////////////////////////////// create Order //////////////////////////////
 
 async function addOrder(req, res) {
@@ -30,8 +31,6 @@ async function addOrder(req, res) {
       payment_method,
       payment_status,
     } = req.body;
-
-    console.log("discount", req.body);
 
     const products = [];
 
@@ -64,8 +63,6 @@ async function addOrder(req, res) {
       shipping_fee: 0,
     });
 
-    console.log("Order>>>>>>>>>>>:", order);
-
     await order.save();
 
     manageStock(products);
@@ -81,91 +78,6 @@ async function addOrder(req, res) {
     });
   }
 }
-
-// /////////////////////////////////////// fetch Cart To Checkout /////////////////////////////
-
-// async function fetchCart(req, res) {
-//   try {
-//     const userId = req.params.id;
-
-//     // Find the user cart and populate the product details
-//     const cart = await Cart.findOne({ user: userId }).populate({
-//       path: "items.productId",
-//       populate: [
-//         { path: "category", populate: { path: "appliedOffer" } }, // Populate category and its offer
-//         { path: "appliedOffer" }, // Populate product's own offer
-//       ],
-//     });
-
-//     if (!cart) {
-//       return res.status(200).json({
-//         success: true,
-//         message: "No cart found",
-//         cartItems: { items: [], totalCartValue: 0 },
-//       });
-//     }
-//     // Recalculating stocks in each fetching
-//     cart.items.forEach((item) => {
-//       const sizeData = item.productId.sizes.find((s) => s.size === item.size);
-//       if (sizeData) {
-//         item.stock = sizeData.stock;
-//       }
-//     });
-
-//     //Recalculate qty by new stock
-//     cart.items.forEach((item) => {
-//       if (item.qty >= item.stock) {
-//         item.qty = item.stock;
-//       } else if (item.qty == 0 && item.stock > 0) {
-//         item.qty = 1;
-//       }
-//     });
-
-//     // Calculate offers for each item
-//     cart.items.forEach((item) => {
-//       calculateProductOfferinCart(item);
-//     });
-
-//     // Recalculate totalProductPrice
-//     cart.items.forEach((item) => {
-//       item.totalProductPrice = item.qty * item.discountedAmount;
-//     });
-
-//     // Filter out inactive products
-//     cart.items = cart.items.filter((item) => item.productId?.isActive);
-
-//     cart.totalCartValue = cart.items.reduce(
-//       (total, item) => total + (item.totalProductPrice || 0),
-//       0
-//     );
-
-//     console.log(" cart.totalCartValue", cart.totalCartValue);
-
-//     cart.total_discount = cart.items.reduce(
-//       (total, item) => total + (item.discountAmount || 0) * (item.qty || 0),
-//       0
-//     );
-
-//     console.log(" cart.total_discount", cart.total_discount);
-
-//     await cart.save();
-//     return res.status(200).json({
-//       success: true,
-//       message: "Cart items fetched successfully",
-//       cartItems: {
-//         items: cart.items,
-//         totalCartValue: cart.totalCartValue,
-//         totalDiscount: cart.total_discount,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Error in Fetch Cart:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "An error occurred while fetching cart items",
-//     });
-//   }
-// }
 
 ////////////////////////////////////// fetch Orders //////////////////////////////////
 
@@ -238,8 +150,6 @@ async function fetchOrder(req, res) {
 async function orderCancel(req, res) {
   try {
     const { userId, order_id, itemId, reason } = req.body;
-
-    console.log("order_id, itemId:::::::kitti", req.body);
 
     const order = await Order.findOne({ order_id });
 

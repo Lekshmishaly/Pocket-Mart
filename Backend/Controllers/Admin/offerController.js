@@ -15,8 +15,6 @@ async function productOffer(req, res) {
       target_type,
     } = req.body;
 
-    // console.log("inputs>>>", req.body);
-
     // ----- Create the Offer -----
     const offer = new Offer({
       title: offerName,
@@ -60,7 +58,6 @@ async function productOffer(req, res) {
 async function fetchProductOffer(req, res) {
   try {
     const productOffer = await Offer.find({ type: "Product" });
-    // console.log("productOffer...", productOffer);
 
     return res.json({ productOffer });
   } catch (error) {
@@ -135,7 +132,6 @@ async function categoryOffer(req, res) {
 async function fetchCategoryOffer(req, res) {
   try {
     const categoryOffer = await Offer.find({ type: "Category" });
-    // console.log("categoryOffer...", categoryOffer);
 
     return res.json({ categoryOffer });
   } catch (error) {

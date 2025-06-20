@@ -2,8 +2,6 @@ const Address = require("../../Models/addressModel");
 const { findByIdAndUpdate } = require("../../Models/userModel");
 
 async function addAddress(req, res) {
-  console.log("Req is reached======");
-
   try {
     const { userId, formData } = req.body;
 

@@ -163,8 +163,6 @@ async function fetchProduct(req, res) {
         .json({ success: false, message: "No Products found" });
     }
 
-    console.log("PROduct data", productData);
-
     let totalStocks = 0;
     productData.sizes.forEach((s) => {
       totalStocks += s.stock;

@@ -128,8 +128,6 @@ async function fetchDashboardData(req, res) {
       },
     ]);
 
-    console.log("salesChart::::::::::::::>", salesData);
-
     // ::::::::::::::::::::::::::::::::::::::::::::::::::: Best Selling Products :::::::::::::::::::::::::::::::::::::::::::::::::::
 
     const bestProducts = await Order.aggregate([
@@ -166,7 +164,6 @@ async function fetchDashboardData(req, res) {
       },
     ]);
 
-    console.log(":::::::bestProducts", bestProducts);
     // :::::::::::::::::::::::::::::::::::::::::::::::  Best Selling Categories ::::::::::::::::::::::::::::::::::::::::::::::::::
 
     const bestCategories = await Order.aggregate([
@@ -210,7 +207,6 @@ async function fetchDashboardData(req, res) {
       },
     ]);
 
-    console.log("::::bestCategories ", bestCategories);
     // Response
     res.status(200).json({
       success: true,
