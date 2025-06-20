@@ -31,12 +31,11 @@ export async function CalculateOfferPrice(
     // Determine the highest discount and set values in offerData
     if (categoryDiscountAmount > productDiscountAmount) {
       offerData.offerPrice = product_price - categoryDiscountAmount;
-      console.log("PRICE OFF 1", offerData.offerPrice);
+
       offerData.offerDiscountAmt = categoryDiscountAmount;
       offerData.offerDiscount = categoryOfferPercentage;
     } else if (productDiscountAmount > categoryDiscountAmount) {
       offerData.offerPrice = product_price - productDiscountAmount;
-      console.log("PRICE OFF 2", offerData.offerPrice);
 
       offerData.offerDiscountAmt = productDiscountAmount;
       offerData.offerDiscount = productOfferPercentage;

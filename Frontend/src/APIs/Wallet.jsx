@@ -25,7 +25,7 @@ export const deductMoneyFromWalletApi = async (
       orderID: orderID,
       total_amount: total_amount,
     });
-    console.log("Wallet Deduction Response::", response.data);
+
     return response.data; // Return only response data
   } catch (error) {
     console.error(

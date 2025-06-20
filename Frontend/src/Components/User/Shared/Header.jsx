@@ -73,7 +73,7 @@ export default function Header({ name }) {
 
   return (
     <header
-      className={`w-screen pt-8 px-4 sm:px-8 lg:px-16 z-50 transition-all duration-500  ${
+      className={`w-screen pt-6 px-2 sm:px-8 lg:px-16 z-50 transition-all duration-500 ${
         isVisible && !isHomePage ? "translate-y-0" : ""
       } ${
         isScrolled && !isHomePage
@@ -82,125 +82,129 @@ export default function Header({ name }) {
           ? "bg-[#f4ede3] text-black shadow-md py-5"
           : "bg-transparent text-black fixed top-0 left-0"
       }`}>
-      <div className=" mx-1 ">
-        <div className="flex justify-between items-start">
-          {/* Left side - Logo and Breadcrumbs */}
-          <div className="flex flex-col">
+      <div className="mx-1">
+        <div className="flex flex-wrap justify-between items-start gap-y-2 sm:gap-y-0">
+          {/* Left - Logo and Breadcrumbs */}
+          <div className="flex flex-col min-w-[160px] flex-1 sm:flex-none">
             <span
               onClick={() => navigate("/")}
-              className="text-2xl font-sm mb-2  text-[#312617de] ">
+              className="text-xl lg:text-lg sm:text-sm xs:text-xs max-[320px]:text-[10px] font-sm mb-1 text-[#312617de]">
               𝒫𝑜𝒸𝓀𝑒𝓉 𝑀𝒶𝓇𝓉
             </span>
-            <nav className="text-sm text-[#312f2d] font-thin leading-relaxed font-Futura-Light, sans-serif">
+
+            <nav className="text-sm lg:text-xs sm:text-[11px] xs:text-[10px] max-[320px]:text-[8.5px] text-[#312f2d] font-thin leading-tight max-[320px]:leading-none">
               <span
                 onClick={() => navigate("/")}
-                className="cursor-pointer text-[#8b5d4b] text-sm font-thin leading-relaxed font-Futura-Light, sans-serif">
+                className="cursor-pointer text-[#8b5d4b] font-thin">
                 Home
               </span>
-              <span className="mx-2">|</span>
+              <span className="mx-1 max-[320px]:mx-[4px]">|</span>
               <span
                 onClick={() => navigate("/shop-page")}
-                className="cursor-pointer text-[#8b5d4b] text-sm font-thin leading-relaxed font-Futura-Light, sans-serif">
+                className="cursor-pointer text-[#8b5d4b] font-thin">
                 All
               </span>
-              <span className="mx-2">|</span>
+              <span className="mx-1 max-[320px]:mx-[4px]">|</span>
               <span
                 onClick={() => navigate("/shop-page")}
-                className="cursor-pointer text-[#8b5d4b] text-sm font-thin leading-relaxed font-Futura-Light, sans-serif">
+                className="cursor-pointer text-[#8b5d4b] font-thin">
                 {name || ""}
               </span>
             </nav>
           </div>
 
-          {/* Right side - Navigation Icons */}
-          <div className="flex items-center space-x-2 sm:space-x-4 relative">
+          {/* Right - Icons */}
+          <div className="flex flex-wrap justify-end items-center gap-2 sm:gap-4 flex-1 sm:flex-none relative max-[320px]:gap-1">
             <span
               onClick={() => navigate("/shop-page")}
-              className="cursor-pointer text-sm text-[#312f2d] font-thin leading-relaxed font-Futura-Light, sans-serif hover:text-gray-700 hidden sm:inline-block">
+              className="cursor-pointer text-sm lg:text-xs sm:text-[11px] xs:text-[10px] max-[320px]:text-[8.5px] text-[#2d2b28] font-thin hover:text-gray-700 hidden sm:inline-block">
               Sale
             </span>
+
             {userData ? (
               <>
-                {" "}
                 <Button
                   onClick={() => navigate("/profile/account")}
                   variant="ghost"
                   size="sm"
-                  aria-label="User account">
-                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                  aria-label="User account"
+                  className="p-1 sm:p-[6px] max-[400px]:p-[4px] max-[320px]:p-[2px] text-[#925f2d]">
+                  <User className="h-5 w-5 sm:h-4 sm:w-4 max-[400px]:h-[13px] max-[400px]:w-[13px] max-[320px]:h-[11px] max-[320px]:w-[11px]" />
                 </Button>
+
                 <Button
                   onClick={() => navigate("/cart")}
                   variant="ghost"
                   size="sm"
-                  aria-label="Shopping bag">
-                  <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>{" "}
+                  aria-label="Shopping bag"
+                  className="p-1 sm:p-[6px] max-[400px]:p-[4px] max-[320px]:p-[2px] text-[#925f2d]">
+                  <ShoppingBag className="h-5 w-5 sm:h-4 sm:w-4 max-[400px]:h-[13px] max-[400px]:w-[13px] max-[320px]:h-[11px] max-[320px]:w-[11px]" />
+                </Button>
               </>
             ) : (
               <Button
                 onClick={() => navigate("/login")}
                 variant="ghost"
                 size="sm"
-                aria-label="Login">
-                <span
-                  onClick={() => navigate("/shop-page")}
-                  className="cursor-pointer text-sm text-[#312f2d] font-thin leading-relaxed font-Futura-Light, sans-serif hover:text-gray-700 hidden sm:inline-block">
+                aria-label="Login"
+                className="p-1 sm:p-[6px] max-[400px]:p-[4px] max-[320px]:p-[2px] text-[#794d20]">
+                <span className="text-xs sm:text-[11px] max-[400px]:text-[9px] max-[320px]:text-[7.5px] text-[#312f2d] hidden sm:inline-block">
                   Login
                 </span>
-                <LogIn className="h-4 w-4 sm:h-5 sm:w-5 cursor-pointer" />
+                <LogIn className="h-5 w-5 sm:h-4 sm:w-4 max-[400px]:h-[13px] max-[400px]:w-[13px] max-[320px]:h-[11px] max-[320px]:w-[11px]" />
               </Button>
             )}
 
             {isSearchVisible && (
               <input
-                onChange={(e) => {
-                  setSeachValue(e.target.value);
-                }}
+                onChange={(e) => setSeachValue(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSearch();
-                  }
+                  if (e.key === "Enter") handleSearch();
                 }}
                 type="text"
                 placeholder="Search..."
-                className="px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b5d4b] transition-all duration-300"
+                className="px-2 py-1 text-xs sm:text-[11px] max-[400px]:text-[9px] max-[320px]:text-[7.5px] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8b5d4b] transition-all duration-300"
               />
             )}
+
             <Button
               variant="ghost"
               size="sm"
               aria-label="Search"
-              onClick={() => setIsSearchVisible(!isSearchVisible)}>
-              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+              onClick={() => setIsSearchVisible(!isSearchVisible)}
+              className="p-1 sm:p-[6px] max-[400px]:p-[4px] max-[320px]:p-[2px] text-[#925f2d]">
+              <Search className="h-5 w-5 sm:h-4 sm:w-4 max-[400px]:h-[13px] max-[400px]:w-[13px] max-[320px]:h-[11px] max-[320px]:w-[11px]" />
             </Button>
+
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" aria-label="Menu">
-                  <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Menu"
+                  className="p-1 sm:p-[6px] max-[400px]:p-[4px] max-[320px]:p-[2px] text-[#925f2d]">
+                  <Menu className="h-5 w-5 sm:h-4 sm:w-4 max-[400px]:h-[13px] max-[400px]:w-[13px] max-[320px]:h-[11px] max-[320px]:w-[11px]" />
                 </Button>
               </SheetTrigger>
+
               <SheetContent className="bg-[#f4ede3]">
                 <nav className="flex flex-col space-y-4 mt-8">
                   <SheetTitle></SheetTitle>
-                  <div
-                    onClick={() => navigate("/")}
-                    className="text-sm text-[#8b5d4b] font-thin leading-relaxed font-Futura-Light, sans-serif  border-b-2 border-transparent hover:border-[#8b5d4b] transition-colors duration-300">
-                    Home
-                  </div>
-                  <div
-                    onClick={() => navigate("/shop-page")}
-                    className="text-sm text-[#8b5d4b] font-thin leading-relaxed font-Futura-Light, sans-serif  border-b-2 border-transparent hover:border-[#8b5d4b] transition-colors duration-300">
-                    All
-                  </div>
-                  <div
-                    onClick={() => navigate("/shop-page")}
-                    className="text-sm text-[#8b5d4b] font-thin leading-relaxed font-Futura-Light, sans-serif  border-b-2 border-transparent hover:border-[#8b5d4b] transition-colors duration-300">
-                    Shop
-                  </div>
+
+                  {["Home", "All", "Shop"].map((label, index) => (
+                    <div
+                      key={index}
+                      onClick={() =>
+                        navigate(label === "Home" ? "/" : "/shop-page")
+                      }
+                      className="text-sm sm:text-xs max-[400px]:text-[9px] max-[320px]:text-[7.5px] text-[#8b5d4b] font-thin border-b-2 border-transparent hover:border-[#8b5d4b] transition-colors duration-300">
+                      {label}
+                    </div>
+                  ))}
+
                   <div
                     onClick={handleUserLogout}
-                    className="text-sm text-[#8b5d4b] font-thin leading-relaxed font-Futura-Light, sans-serif  border-b-2 border-transparent hover:border-[#8b5d4b] transition-colors duration-300">
+                    className="text-sm sm:text-xs max-[400px]:text-[9px] max-[320px]:text-[7.5px] text-[#8b5d4b] font-thin border-b-2 border-transparent hover:border-[#8b5d4b] transition-colors duration-300">
                     Logout
                   </div>
                 </nav>

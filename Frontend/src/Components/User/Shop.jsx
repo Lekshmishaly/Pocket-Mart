@@ -280,7 +280,7 @@ export default function Shop({ search }) {
 
         {/* Sort Panel */}
         <div
-          className={`fixed mt-32 inset-y-0 right-0 z-40 w-[20%] xs:w-4/5 sm:w-3/5 md:w-2/5 lg:w-1/3 xl:w-1/4 bg-[#faf5f0] p-6 overflow-y-auto transition-transform duration-300 ease-in-out ${
+          className={`fixed mt-32 inset-y-0 right-0 z-40 w-full sm:w-4/5 md:w-3/5 lg:w-1/3 xl:w-1/4 bg-[#faf5f0] p-4 sm:p-6 overflow-y-auto transition-transform duration-300 ease-in-out ${
             isSortOpen ? "translate-x-0" : "translate-x-full"
           }`}>
           <button
@@ -288,9 +288,11 @@ export default function Shop({ search }) {
             onClick={() => setIsSortOpen(false)}>
             <X className="h-6 w-6" />
           </button>
+
           <h2 className="text-[#93624c] text-xl font-[Satisfy] mb-6">
             SORT BY
           </h2>
+
           <div className="space-y-4">
             {[
               { value: "newest", label: "Newest" },
@@ -309,9 +311,8 @@ export default function Shop({ search }) {
               </button>
             ))}
           </div>
+
           <div className="mt-6 space-y-4">
-            {" "}
-            {/* Updated Sort Panel with Apply Sort button */}
             <button
               onClick={() => {
                 setSortBy(tempSortBy);
@@ -321,6 +322,7 @@ export default function Shop({ search }) {
               className="w-full py-2 px-4 border border-[#8b5d4b] text-[#93624c] hover:bg-[#8b5d4b] hover:text-white transition-colors text-sm font-Futura-Light">
               APPLY SORT
             </button>
+
             <button
               onClick={() => {
                 setTempSortBy("");
@@ -336,7 +338,10 @@ export default function Shop({ search }) {
 
         {/* Product Grid */}
         <div className="w-full transition-all duration-300 ease-in-out">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8 2xl:gap-10">
+          <div
+            className="grid grid-cols-2 
+                  [@media(min-width:768px)]:grid-cols-3 
+                  gap-6 xl:gap-8 2xl:gap-10">
             {Array.isArray(products) && products.length > 0 ? (
               products.map((product) => (
                 <ProductCard key={product._id} product={product} />

@@ -24,7 +24,6 @@ export default function SizeSelector({
     try {
       const response = await axiosInstance.get(`/user/fetchSize/${productId}`);
       setsizes(response.data.sizeData);
-      // console.log("size data::", response.data.sizeData);
 
       return;
     } catch (error) {

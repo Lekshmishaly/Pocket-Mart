@@ -19,7 +19,6 @@ function SavedItems() {
         `/user/wishlist/${userData._id}`
       );
       setProducts(response.data.wishlist.items);
-      console.log("Fetching Data ========>", response.data.wishlist.items);
     } catch (error) {
       console.log(error);
     }
@@ -47,8 +46,10 @@ function SavedItems() {
   return (
     <div className="min-h-screen bg-[#f4ede3] pt-8 px-4 sm:px-6 lg:px-8">
       <h2 className="text-[#8b5d4b] text-xl mb-8 font-light">Wishlist</h2>
+
       <div className="max-w-[2000px] mx-auto">
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
+        {/* Updated responsive grid classes */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 xl:gap-8">
           {Array.isArray(products) && products.length > 0 ? (
             products.map((product) => (
               <div key={product._id} className="group relative">
@@ -62,17 +63,17 @@ function SavedItems() {
                       e.stopPropagation();
                       handleRemoveWishlist(product.productId._id);
                     }}
-                    className="absolute right-3 top-3 z-10 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+                    className="absolute right-2 top-2 z-10 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                     aria-label={`Remove ${product.productId.name}`}>
-                    <X className="h-4 w-4 text-[#8b5d4b]" />
+                    <X className="h-3 w-3 sm:h-4 sm:w-4 text-[#8b5d4b]" />
                   </button>
-
                   <img
                     src={product.productId.images[0] || "/placeholder.svg"}
                     alt={product.productId.name}
                     className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
+
                 <div className="mt-4 text-center">
                   <h3 className="text-[#93624c] font-[Futura] text-base tracking-wide">
                     {product.productId.name}

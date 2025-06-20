@@ -17,7 +17,6 @@ import { Button } from "@/Components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 function VerifiedModal({ isModalOpen, onExit, order }) {
-  console.log("Order Data::::::::>>>????", order);
   const navigate = useNavigate();
 
   return (

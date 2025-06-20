@@ -22,11 +22,21 @@ function ProductContainer({ title }) {
     fetchProducts();
   }, []);
   return (
-    <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 mt-5  m-0">
+    <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 mt-5">
       <h2 className="text-[#8b5d4b] text-sm leading-relaxed font-extrabold text-center">
         {title}
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-x-32 2xl:gap-8 m-12">
+
+      <div
+        className="grid 
+               grid-cols-2 
+               sm:grid-cols-2 
+               md:grid-cols-2 
+               lg:grid-cols-3 
+               xl:grid-cols-3 
+               gap-x-6 gap-y-10
+               px-2 sm:px-4 md:px-6 xl:px-12
+               py-4">
         {Array.isArray(products) && products.length > 0 ? (
           products.map((product) => (
             <ProductCard key={product._id} product={product} />

@@ -79,8 +79,6 @@ export default function AddProduct() {
   }
 
   async function handleAddProduct() {
-    // console.log("imageFiles :::::>", imageFiles);
-
     const validate = validateAddProduct(
       name,
       price,
@@ -110,7 +108,7 @@ export default function AddProduct() {
         });
         setIsLoading(false);
         navigate("/admin/productList");
-        // console.log("Add Products:::::::::::::>", response.data.productDetails);
+
         return toast.success(response.data.message);
       } catch (error) {
         console.log(error);

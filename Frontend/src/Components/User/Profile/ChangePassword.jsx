@@ -17,7 +17,7 @@ function ChangePassword() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  console.log("current", currentPassword);
+
   const calculatePasswordStrength = (password) => {
     let strength = 0;
     if (password.length > 5) strength++;

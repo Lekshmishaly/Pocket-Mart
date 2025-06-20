@@ -23,6 +23,7 @@ const Header = lazy(() => import("./Components/User/Shared/Header"));
 const Footer = lazy(() => import("./Components/User/Shared/Footer"));
 const CheckOutPage = lazy(() => import("./pages/User/CheckOutPage"));
 const RatingPage = lazy(() => import("./Components/User/Shared/RatingPage"));
+const NotFoundPage = lazy(() => import("./Utils/NotFoundPage"));
 
 function User() {
   return (
@@ -134,6 +135,15 @@ function User() {
         element={
           <Suspense fallback={<FooterSkeleton />}>
             <Footer />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path="*"
+        element={
+          <Suspense fallback={<CheckoutSkeleton />}>
+            <NotFoundPage />
           </Suspense>
         }
       />

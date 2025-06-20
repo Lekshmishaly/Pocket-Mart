@@ -44,6 +44,7 @@ function ReferralPopup({ isOpen, setIsOpen, user_id, defaultReferralCode }) {
   async function handleSkip() {
     try {
       const _id = user_id;
+
       const response = await axiosInstance.patch("/user/referal/skip", {
         _id,
       });

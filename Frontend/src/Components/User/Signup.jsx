@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import videoLogo from "../../assets/POCKET.mp4";
 import axiosInstance from "../../Utils/AxiosConfig";
@@ -97,10 +97,11 @@ function Signup() {
   }
 
   return (
-    <div className="bg-[#f5f5f5] min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="p-8">
-          <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden shadow-lg">
+    <div className="bg-[#e8d1b3] min-h-screen flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl md:flex overflow-hidden">
+        {/* Video Logo Section (optional for larger screens) */}
+        <div className="hidden md:flex flex-col justify-center items-center bg-[#b48c78] w-1/2 p-6">
+          <div className="w-40 h-40 rounded-full overflow-hidden shadow-lg mb-4">
             <video
               className="w-full h-full object-cover"
               autoPlay
@@ -111,15 +112,36 @@ function Signup() {
               Your browser does not support the video tag.
             </video>
           </div>
-          <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-8">
+          <h3 className="text-lg text-[#f4efee] font-semibold text-center">
+            𝙿𝚘𝚌𝚔𝚎𝚝 𝙼𝚊𝚛𝚝
+          </h3>
+        </div>
+
+        {/* Signup Form */}
+        <div className="w-full md:w-1/2 p-6 sm:p-8">
+          <div className="md:hidden w-28 h-28 mx-auto mb-4 rounded-full overflow-hidden shadow-md">
+            <video
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline>
+              <source src={videoLogo} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          <h2 className="text-2xl md:text-3xl font-extrabold text-center text-gray-500 mb-6">
             Sign Up
           </h2>
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-6 sm:space-y-0">
+
+          <div className="space-y-5 text-sm md:text-base">
+            {/* Names Row */}
+            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
               <div className="flex-1">
                 <label
                   htmlFor="firstName"
-                  className="block text-sm font-medium text-gray-700 mb-1">
+                  className="block mb-1 font-medium text-gray-300">
                   First Name
                 </label>
                 <input
@@ -128,10 +150,10 @@ function Signup() {
                   value={userFirstName}
                   onChange={handleUserFirstName}
                   placeholder="first name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e07d6a] hover:border-[#e07d6a] transition-colors"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#e07d6a] focus:outline-none"
                 />
                 {error.userFirstName && (
-                  <p className="text-red-600 text-sm mt-1">
+                  <p className="text-red-600 text-xs mt-1">
                     {error.userFirstName}
                   </p>
                 )}
@@ -139,7 +161,7 @@ function Signup() {
               <div className="flex-1">
                 <label
                   htmlFor="lastName"
-                  className="block text-sm font-medium text-gray-700 mb-1">
+                  className="block mb-1 font-medium text-gray-300">
                   Last Name
                 </label>
                 <input
@@ -148,19 +170,21 @@ function Signup() {
                   value={userLastName}
                   onChange={handleUserLastName}
                   placeholder="last name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e07d6a] hover:border-[#e07d6a] transition-colors"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#e07d6a] focus:outline-none"
                 />
                 {error.userFirstName && (
-                  <p className="text-red-600 text-sm mt-1">
+                  <p className="text-red-600 text-xs mt-1">
                     {error.userFirstName}
                   </p>
                 )}
               </div>
             </div>
+
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1">
+                className="block mb-1 font-medium text-gray-300">
                 Email
               </label>
               <input
@@ -169,16 +193,18 @@ function Signup() {
                 value={userEmail}
                 onChange={handleUserEmail}
                 placeholder="abc@.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e07d6a] hover:border-[#e07d6a] transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#e07d6a] focus:outline-none"
               />
               {error.userEmail && (
-                <p className="text-red-600 text-sm mt-1">{error.userEmail}</p>
+                <p className="text-red-600 text-xs mt-1">{error.userEmail}</p>
               )}
             </div>
+
+            {/* Phone */}
             <div>
               <label
                 htmlFor="mobile"
-                className="block text-sm font-medium text-gray-700 mb-1">
+                className="block mb-1 font-medium text-gray-300">
                 Phone Number
               </label>
               <input
@@ -187,16 +213,18 @@ function Signup() {
                 value={userMobile}
                 onChange={handleUserMobile}
                 placeholder="+1 (555) 123-4567"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e07d6a] hover:border-[#e07d6a] transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#e07d6a] focus:outline-none"
               />
               {error.userMobile && (
-                <p className="text-red-600 text-sm mt-1">{error.userMobile}</p>
+                <p className="text-red-600 text-xs mt-1">{error.userMobile}</p>
               )}
             </div>
+
+            {/* Password */}
             <div className="relative">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1">
+                className="block mb-1 font-medium text-gray-300">
                 Password
               </label>
               <input
@@ -205,29 +233,30 @@ function Signup() {
                 value={userPassword}
                 onChange={handleUserPassword}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e07d6a] hover:border-[#e07d6a] transition-colors pr-10"
-                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#e07d6a] focus:outline-none pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 top-6">
+                className="absolute top-9 right-3">
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-500" />
+                  <Eye className="w-5 h-5 text-gray-500" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-500" />
+                  <EyeOff className="w-5 h-5 text-gray-500" />
                 )}
               </button>
               {error.userPassword && (
-                <p className="text-red-600 text-sm mt-1">
+                <p className="text-red-600 text-xs mt-1">
                   {error.userPassword}
                 </p>
               )}
             </div>
+
+            {/* Confirm Password */}
             <div className="relative">
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-1">
+                className="block mb-1 font-medium text-gray-300">
                 Confirm Password
               </label>
               <input
@@ -236,44 +265,46 @@ function Signup() {
                 value={userConfirmPassword}
                 onChange={handleUserConfirmPassword}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e07d6a] hover:border-[#e07d6a] transition-colors pr-10"
-                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#e07d6a] focus:outline-none pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 top-6">
+                className="absolute top-9 right-3">
                 {showConfirmPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-500" />
+                  <Eye className="w-5 h-5 text-gray-500" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-500" />
+                  <EyeOff className="w-5 h-5 text-gray-500" />
                 )}
               </button>
               {error.userConfirmPassword && (
-                <p className="text-red-600 text-sm mt-1">
+                <p className="text-red-600 text-xs mt-1">
                   {error.userConfirmPassword}
                 </p>
               )}
             </div>
-            <div className="text-center mb-4">
-              <span className="text-sm">
+
+            {/* Already have account */}
+            <div className="text-center">
+              <p className="text-sm">
                 Already have an account?{" "}
-                <Link to="/login" className="text-[#e07d6a] hover:underline">
+                <Link to="/login" className="text-[#f26925] hover:underline">
                   Log in
                 </Link>
-              </span>
+              </p>
             </div>
+
+            {/* Submit */}
             <div className="mt-4">
               <button
                 onClick={handleSubmission}
                 disabled={isLoading}
-                className="w-full bg-[#e07d6a] text-white py-2 px-4 rounded-md hover:bg-[#9c4f3f] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#e07d6a] disabled:opacity-50">
+                className="w-full bg-[#f26925] text-white py-2 rounded-md hover:bg-[#9c4f3f] transition disabled:opacity-50">
                 {isLoading ? (
                   <svg
                     className="animate-spin h-5 w-5 mx-auto"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24">
+                    viewBox="0 0 24 24"
+                    fill="none">
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -284,31 +315,33 @@ function Signup() {
                     <path
                       className="opacity-75"
                       fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                   </svg>
                 ) : (
                   "Sign Up"
                 )}
               </button>
             </div>
-            <div className="relative">
+
+            {/* Divider */}
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
+                <span className="bg-white px-2 text-gray-500">
                   Or Continue with
                 </span>
               </div>
             </div>
-            <div className="w-full flex justify-center mt-5">
+
+            {/* Google Login */}
+            <div className="flex justify-center">
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   try {
                     const decodeData = jwtDecode(credentialResponse.credential);
-                    console.log("decodeData result", decodeData);
                     setGoogleData(decodeData);
-
                     const response = await axiosInstance.post(
                       "/user/googleAuth",
                       {
@@ -317,23 +350,20 @@ function Signup() {
                         email: decodeData.email,
                       }
                     );
+
                     if (response.data.success) {
-                      toast.success(response.data.message);
                       dispatch(addUser(response.data.userData));
-                      navigate("/home");
+                      toast.success(response.data.message);
+                      navigate("/");
                     }
                   } catch (err) {
                     if (err.response && err.response.status === 401) {
                       return toast.error(err.response.data.message);
                     }
-                    console.log(err);
-
                     toast.error("An error occurred. Please try again.");
                   }
                 }}
-                onError={() => {
-                  console.log("Login Failed");
-                }}
+                onError={() => console.log("Login Failed")}
               />
             </div>
           </div>

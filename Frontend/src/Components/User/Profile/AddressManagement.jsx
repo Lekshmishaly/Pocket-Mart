@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import AddressForm from "./AddressForm";
 import {
   AlertDialog,
@@ -96,6 +96,8 @@ function AddressManagement({ setSelectedAddressCheckout }) {
     }
   }
 
+  ///////////////////////////////////////////////// handle Edit Address //////////////////////////////////////////////
+
   async function handleEditAddress() {
     const validate = validateAddress(
       editData.firstname,
@@ -126,6 +128,8 @@ function AddressManagement({ setSelectedAddressCheckout }) {
     }
   }
 
+  ///////////////////////////////////////////////// handle Delete Address //////////////////////////////////////////////
+
   async function handleDeleteAddress() {
     try {
       const response = await axiosInstance.delete(`/user/address/${toDelete}`);
@@ -144,20 +148,21 @@ function AddressManagement({ setSelectedAddressCheckout }) {
   }, [reload]);
 
   return (
-    <div className="bg-[#f4ede3] p-6">
-      <div className="flex justify-between items-center mb-12">
-        <h2 className="text-[#8b5d4b] text-xm font-Futura-Light">
+    <div className="bg-[#f4ede3] p-4 sm:p-6">
+      <div className="flex justify-between items-center mb-6 gap-2">
+        <h2 className="text-[#8b5d4b] text-[13px] sm:text-sm font-Futura-Light leading-tight">
           Manage and add new shipping addresses.
         </h2>
         <button
           onClick={() => setIsAdding(true)}
-          className="relative text-[#8b5d4b] text-sm font-Futura-Light hover:text-[#6d483a] transition-colors duration-300 group">
+          className="relative text-[#8b5d4b] text-[13px] sm:text-sm font-Futura-Light font-semibold hover:text-[#6d483a] transition-colors duration-300 group">
           Add new address
           <span className="absolute left-0 bottom-0 h-[1px] w-full bg-[#8b5d4b] transition-all duration-500 transform scale-x-100 group-hover:scale-x-50 origin-center"></span>
         </button>
       </div>
+
       {addresses.length === 0 && (
-        <div className=" text-center text-sm mt-2 text-[#8b5d4b] ">
+        <div className="text-center text-sm mt-2 text-[#8b5d4b]">
           No address found
         </div>
       )}
@@ -172,59 +177,61 @@ function AddressManagement({ setSelectedAddressCheckout }) {
         />
       )}
 
-      {/* display the addresses  */}
       {!isAdding && (
-        <div className="w-3/6 ">
+        <div className="w-full max-w-[800px] mx-auto ">
           {Array.isArray(addresses) &&
             addresses.map((address, i) => (
               <div
                 key={address._id}
-                className="border border-[#d4c9bc] rounded-lg py-14 p-8 max-w-2xl bg-[#eae0d3] mb-5">
-                {setSelectedAddressCheckout && (
-                  <input
-                    type="radio"
-                    id="adress"
-                    name="select addredd"
-                    value={address._id}
-                    onChange={() => {
-                      setSelectedAddressCheckout(address);
-                    }}
-                  />
-                )}
+                className="border border-[#d4c9bc] rounded-lg py-6 px-4 sm:py-10 sm:px-6 bg-[#eae0d3] mb-5">
+                <div className="relative w-full bg-[#f5ebe1] rounded-md border border-[#e4d5c7] px-4 py-3 md:px-5 md:py-4">
+                  <div className="flex items-start gap-3">
+                    {setSelectedAddressCheckout && (
+                      <input
+                        type="radio"
+                        id="address"
+                        name="select_address"
+                        value={address._id}
+                        onChange={() => setSelectedAddressCheckout(address)}
+                        className="mt-1 md:mt-1.5"
+                      />
+                    )}
 
-                <div className="flex justify-between items-start mb-4">
-                  <span className="text-[#8b5d4b] text-sm font-Futura-Light">
-                    {address.firstname} {address.lastname}
-                  </span>
-                  <div className="space-x-4">
+                    {/* Address Info */}
+                    <div className="flex flex-col gap-0.5 w-full pr-20">
+                      <span className="text-[#8b5d4b] text-[11px] sm:text-[13.5px] md:text-[13px] lg:text-[12.5px] font-Futura-Light leading-snug">
+                        {address.firstname} {address.lastname}
+                      </span>
+                      <span className="text-[#8b5d4b] text-[11px] sm:text-[13.5px] md:text-[13px] lg:text-[12.5px] font-Futura-Light leading-snug">
+                        {address.address} {address.state}, {address.country},{" "}
+                        {address.postalCode}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="absolute bottom-3 right-4 flex gap-3 sm:gap-5">
                     <button
                       onClick={() => {
                         setSelectedAddress(userData.address);
                         setEditData(address);
                       }}
-                      className="relative text-[#8b5d4b] text-sm font-Futura-Light hover:text-[#6d483a] transition-colors duration-300 group">
+                      className="relative text-[#8b5d4b] text-[11px] sm:text-[13px] lg:text-[13px] font-Futura-Light hover:text-[#6d483a] transition-colors duration-300 group">
                       Edit
                       <span className="absolute left-0 bottom-0 h-[1px] w-full bg-[#8b5d4b] transition-all duration-500 transform scale-x-100 group-hover:scale-x-50 origin-center"></span>
                     </button>
+
                     <button
                       onClick={() => {
                         setToDeleted(address._id);
                         setShowDeleteDialog(true);
                       }}
-                      className="relative text-[#8b5d4b] text-sm font-Futura-Light hover:text-[#6d483a] transition-colors duration-300 group">
+                      className="relative text-[#8b5d4b] text-[11px] sm:text-[13px] lg:text-[13px] font-Futura-Light hover:text-[#6d483a] transition-colors duration-300 group">
                       Delete
                       <span className="absolute left-0 bottom-0 h-[1px] w-full bg-[#8b5d4b] transition-all duration-500 transform scale-x-100 group-hover:scale-x-50 origin-center"></span>
                     </button>
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[#8b5d4b] text-sm font-Futura-Light">
-                    {`${address.address}`}
-                  </p>
-                  <p className="text-[#8b5d4b] text-sm font-Futura-Light">
-                    {address.country}
-                  </p>
-                </div>
+
                 {Object.keys(editData).length !== 0 &&
                   editData._id === address._id && (
                     <div className="space-y-6">
@@ -248,7 +255,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                                 firstname: e.target.value,
                               }));
                             }}
-                            className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                            className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                           />
                           {error?.firstname && (
                             <p className="text-red-600 text-sm mt-1">
@@ -270,7 +277,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                                 lastname: e.target.value,
                               }));
                             }}
-                            className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                            className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                           />
                           {error?.lastname && (
                             <p className="text-red-600 text-sm mt-1">
@@ -294,7 +301,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               email: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                         />
                         {error?.email && (
                           <p className="text-red-600 text-sm mt-1">
@@ -317,7 +324,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               phone: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                         />
                         {error?.phone && (
                           <p className="text-red-600 text-sm mt-1">
@@ -340,7 +347,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               address: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                         />
                         {error?.address && (
                           <p className="text-red-600 text-sm mt-1">
@@ -363,7 +370,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               postalCode: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                         />
                         {error?.postalCode && (
                           <p className="text-red-600 text-sm mt-1">
@@ -386,7 +393,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               landMark: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                         />
                         {error?.landMark && (
                           <p className="text-red-600 text-sm mt-1">
@@ -409,7 +416,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               city: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                         />
                         {error?.city && (
                           <p className="text-red-600 text-sm mt-1">
@@ -432,7 +439,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               district: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                         />
                         {error?.district && (
                           <p className="text-red-600 text-sm mt-1">
@@ -455,7 +462,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               state: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2"
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2"
                         />
                         {error?.state && (
                           <p className="text-red-600 text-sm mt-1">
@@ -477,7 +484,7 @@ function AddressManagement({ setSelectedAddressCheckout }) {
                               country: e.target.value,
                             }));
                           }}
-                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#8b5d4b] text-sm font-Futura-Light pb-2">
+                          className="w-full bg-transparent border-b border-[#8b5d4b] focus:outline-none focus:border-[#6d483a] text-[#ca8f78] text-sm font-Futura-Light pb-2">
                           <option value="">Select a country</option>
                           {countryOptions.map((country) => (
                             <option key={country.value} value={country.label}>

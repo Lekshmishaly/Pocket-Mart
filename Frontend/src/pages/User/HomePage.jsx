@@ -15,14 +15,13 @@ function HomePage() {
   const [referralCodeFromUrl, setReferralCodeFromUrl] = useState("");
 
   useEffect(() => {
-    console.log("userData", userData);
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get("ref");
 
     // If ref code exists in URL and user hasn't been referred yet
 
     setReferralCodeFromUrl(refCode);
-    setIsOpen(!userData.usedReferral);
+    setIsOpen(!userData?.usedReferral);
   }, []);
 
   return (

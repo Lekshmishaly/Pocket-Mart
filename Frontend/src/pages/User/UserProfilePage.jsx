@@ -29,10 +29,9 @@ function UserProfilePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-4 py-4">
             {/* Sidebar */}
-            <div className="w-full md:w-64 border-r-[1px] md:h-[400px] border-[#8b5d4b]">
+            <div className="w-full md:w-64 md:border-r-[1px] md:border-[#8b5d4b] md:h-full">
               <UserSidebar />
             </div>
-
             {/* Main Content Area */}
             <div className="flex-1">
               <Routes>

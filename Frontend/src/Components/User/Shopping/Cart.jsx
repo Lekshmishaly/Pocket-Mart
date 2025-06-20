@@ -34,7 +34,6 @@ function Cart() {
         stockChecks[item._id] = item.qty <= (item.productId.stock || 0);
       });
 
-      console.log("stock ", stockChecks);
       setStockStatus(stockChecks);
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -61,7 +60,7 @@ function Cart() {
       const response = await axiosInstance.patch(
         `/user/cart/min/${item._id}/${userData._id}`
       );
-      // console.log(response.data);
+
       setReload(true);
     } catch (err) {
       if (err.response) {
@@ -78,7 +77,7 @@ function Cart() {
       const response = await axiosInstance.patch(
         `/user/cart/add/${item._id}/${userData._id}`
       );
-      // console.log(response.data);
+
       setReload(true);
     } catch (err) {
       if (err.response) {
@@ -95,37 +94,37 @@ function Cart() {
   return (
     <div className="mt-24 bg-[#f4ede3]">
       <div className="max-w-5xl mx-auto px-2 sm:px-4 lg:px-6 py-6">
-        {/* Cart Table */}
         {cartItems.length === 0 ? (
-          <div className="text-center ">
-            <span className="text-lg  font-[Satisfy] text-[#331e16]">
-              Your Cart is Empty{" "}
+          <div className="text-center">
+            <span className="text-lg font-[Satisfy] text-[#331e16]">
+              Your Cart is Empty
             </span>
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#d3d2d2]">
-                <th className="text-left pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[45%]">
-                  Product
-                </th>
-                <th className="text-left pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[15%]">
-                  Size
-                </th>
-                <th className="text-left pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[15%]">
-                  Price
-                </th>
-                <th className="text-left pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[15%]">
-                  Quantity
-                </th>
-                <th className="text-right pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[10%]">
-                  Total
-                </th>
-              </tr>
-            </thead>
-            <tbody className="max-w-28">
-              {Array.isArray(cartItems) &&
-                cartItems.map((item, i) => (
+          <>
+            {/* Desktop Table */}
+            <table className="w-full hidden sm:table">
+              <thead>
+                <tr className="border-b border-[#d3d2d2]">
+                  <th className="text-left pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[45%]">
+                    Product
+                  </th>
+                  <th className="text-left pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[15%]">
+                    Size
+                  </th>
+                  <th className="text-left pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[15%]">
+                    Price
+                  </th>
+                  <th className="text-left pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[15%]">
+                    Quantity
+                  </th>
+                  <th className="text-right pb-6 text-sm font-normal font-Futura-Light text-[#8b5d4b] w-[10%]">
+                    Total
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {cartItems.map((item, i) => (
                   <tr key={i} className="align-top border-t border-[#d3d2d2]">
                     <td className="py-4">
                       <div className="flex gap-6">
@@ -145,7 +144,7 @@ function Cart() {
                             </div>
                           )}
                         </div>
-                        <div className="">
+                        <div>
                           <h3 className="text-sm font-Futura-Light text-[#8b5d4b]">
                             {item.productId.name}
                           </h3>
@@ -157,19 +156,18 @@ function Cart() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 text-sm font-Futura-Light text-[#8b5d4b] align-top ">
+                    <td className="py-4 text-sm font-Futura-Light text-[#8b5d4b] align-top">
                       {item.size}
                     </td>
-                    <td className="py-4 align-top ">
+                    <td className="py-4 align-top">
                       <div className="space-y-1">
                         {item.discountAmount > 0 && (
-                          <p className="text-sm font-Futura-Light text-gray-500 line-through">
+                          <p className="text-sm text-gray-500 line-through">
                             INR {item.productId.price.toLocaleString("en-IN")}
                             .00
                           </p>
                         )}
-
-                        <p className="text-sm font-Futura-Light text-[#8b5d4b]">
+                        <p className="text-sm text-[#8b5d4b]">
                           ₹
                           {Math.round(item.discountedAmount).toLocaleString(
                             "en-IN"
@@ -178,22 +176,22 @@ function Cart() {
                         </p>
                       </div>
                     </td>
-                    <td className="py-4 align-top ">
+                    <td className="py-4 align-top">
                       <div className="flex items-center space-x-4">
                         <button
                           onClick={() => handelMinus(item)}
-                          className="text-[#8b5d4b] text-sm font-Futura-Light hover:text-[#6d483a] transition-colors duration-200">
+                          className="text-[#8b5d4b] text-sm hover:text-[#6d483a] transition">
                           −
                         </button>
-                        <span className="text-sm font-Futura-Light text-[#8b5d4b]">
+                        <span className="text-sm text-[#8b5d4b]">
                           {item.qty}
                         </span>
                         <button
                           onClick={() => handelPlus(item)}
                           disabled={item.stock === 0}
-                          className={`text-[#8b5d4b] text-sm font-Futura-Light ${
+                          className={`text-sm ${
                             item.stock !== 0
-                              ? "hover:text-[#6d483a] transition-colors duration-200"
+                              ? "text-[#8b5d4b] hover:text-[#6d483a]"
                               : "opacity-50 cursor-not-allowed"
                           }`}>
                           +
@@ -202,48 +200,113 @@ function Cart() {
                     </td>
                     <td className="py-4 text-right align-top">
                       <div className="space-y-1">
-                        {/* Price */}
-                        <p className="text-sm font-Futura-Light text-[#8b5d4b]">
+                        <p className="text-sm text-[#8b5d4b]">
                           INR{" "}
                           {Math.round(item.totalProductPrice).toLocaleString(
                             "en-IN"
                           )}
                           .00
                         </p>
-
-                        {/* Discount Badge */}
                         {item.discount > 0 && (
                           <div>
-                            <span className="inline-block text-[#ce472c] text-[10px]   font-semibold rounded-sm">
+                            <span className="text-[10px] text-[#ce472c] font-semibold">
                               {item.discount}% off
                             </span>
                           </div>
                         )}
-
-                        {/* Savings Info */}
                         {item.discountAmount > 0 && (
-                          <p className="text-[#928380] text-xs mt-1 font-Futura-Light">
+                          <p className="text-[#928380] text-xs mt-1">
                             -₹
                             {Math.round(item.discountAmount).toLocaleString(
                               "en-IN"
                             )}
                           </p>
                         )}
-
-                        {/* Remove Button */}
                         <button
                           onClick={() => handleRemoveItems(item)}
-                          className="pt-6 text-[#8b5d4b] text-sm font-Futura-Light border-b font-[Satisfy] border-[#8b5d4b] hover:text-[#6d483a] transition-colors duration-200">
+                          className="pt-4 text-xs text-[#8b5d4b] font-[Satisfy] border-b border-[#8b5d4b] hover:text-[#6d483a] transition">
                           Remove item
                         </button>
                       </div>
                     </td>
                   </tr>
                 ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+
+            {/* Mobile Card View */}
+            <div className="sm:hidden flex flex-col gap-6">
+              {cartItems.map((item, i) => (
+                <div
+                  key={i}
+                  className="border border-[#d3d2d2] p-3 rounded bg-white">
+                  <div className="flex gap-3">
+                    <img
+                      src={item.productId.images[0] || "/placeholder.svg"}
+                      alt={item.productId.name}
+                      className="w-[90px] h-[130px] object-cover rounded"
+                    />
+                    <div className="flex-1 text-xs text-[#8b5d4b] space-y-1">
+                      <div className="font-medium">{item.productId.name}</div>
+                      <div>Size: {item.size}</div>
+                      <div className="space-y-1">
+                        {item.discountAmount > 0 && (
+                          <div className="line-through text-[11px] text-gray-400">
+                            ₹{item.productId.price.toLocaleString("en-IN")}.00
+                          </div>
+                        )}
+                        <div className="font-semibold text-sm">
+                          ₹
+                          {Math.round(item.discountedAmount).toLocaleString(
+                            "en-IN"
+                          )}
+                          .00
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handelMinus(item)}
+                          className="text-[#8b5d4b] text-sm">
+                          −
+                        </button>
+                        <span>{item.qty}</span>
+                        <button
+                          onClick={() => handelPlus(item)}
+                          disabled={item.stock === 0}
+                          className={`${
+                            item.stock === 0
+                              ? "opacity-50 cursor-not-allowed"
+                              : "text-[#8b5d4b]"
+                          } text-sm`}>
+                          +
+                        </button>
+                      </div>
+                      <div className="text-sm font-medium mt-1">
+                        Total: ₹
+                        {Math.round(item.totalProductPrice).toLocaleString(
+                          "en-IN"
+                        )}
+                        .00
+                      </div>
+                      {item.discount > 0 && (
+                        <div className="text-[10px] text-[#ce472c]">
+                          {item.discount}% off
+                        </div>
+                      )}
+                      <button
+                        onClick={() => handleRemoveItems(item)}
+                        className="mt-2 text-[10px] underline text-[#8b5d4b] hover:text-[#6d483a]">
+                        Remove item
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
+
       {/* Cart Summary */}
       {cartItems.length === 0 ? (
         <div className="flex justify-center py-5">
@@ -254,44 +317,58 @@ function Cart() {
           </button>
         </div>
       ) : (
-        <div className=" bg-[#733519] text-white py-6 ">
-          <div className="flex justify-around gap-32">
-            <div>
-              {totalDiscount !== 0 ? (
-                <p className="text-sm font-Futura-Light  opacity-80 mt-2">
-                  Total Saves
+        <div className="bg-[#733519] text-white py-6 px-3 sm:px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-col gap-4 sm:gap-6">
+              {/* Subtotal row */}
+              <div className="flex justify-between items-start">
+                <p className="text-xs sm:text-sm font-Futura-Light opacity-80">
+                  Subtotal
                 </p>
-              ) : null}
-              <p className="text-sm font-Futura-Light  opacity-80">Subtotal</p>
-
-              <p className="text-sm font-Futura-Light  opacity-80 mt-4">
-                Tax included and shipping calculated at checkout
-              </p>
-            </div>
-            <div className="flex flex-col items-center">
-              {totalDiscount !== 0 && (
-                <p className="text-sm font-Futura-Light opacity-50 mb-2">
-                  -₹{Math.round(totalDiscount).toLocaleString("en-IN")}
-                </p>
-              )}
-              {subtotal !== 0 && (
-                <p className="text-sm font-Futura-Light  opacity-80  mb-2">
+                <p className="text-xs sm:text-sm font-Futura-Light opacity-80 mb-2">
                   INR{" "}
                   {subtotal ? Math.round(subtotal).toLocaleString("en-IN") : 0}
                   .00
                 </p>
+              </div>
+
+              {/* Total Savings */}
+              {totalDiscount !== 0 && (
+                <div className="flex justify-between items-start">
+                  <p className="text-xs sm:text-sm font-Futura-Light opacity-80">
+                    Total Saves
+                  </p>
+                  <p className="text-xs sm:text-sm font-Futura-Light opacity-50 mb-2">
+                    -₹{Math.round(totalDiscount).toLocaleString("en-IN")}
+                  </p>
+                </div>
               )}
 
-              <button
-                onClick={() => navigate("/checkout")}
-                disabled={subtotal === 0}
-                className={`text-sm font-Futura-Light border-b border-white ${
-                  subtotal === 0
-                    ? "opacity-50 cursor-not-allowed"
-                    : "opacity-80 hover:opacity-100"
-                }`}>
-                {subtotal === 0 ? "All items are out of stock" : "Checkout →"}
-              </button>
+              {/* Tax + Checkout row */}
+              <div className="flex justify-between items-start flex-wrap sm:flex-nowrap">
+                {/* Responsive label */}
+                <p className="text-xs sm:text-sm font-Futura-Light opacity-80 mt-1 max-w-[60%]">
+                  <span className="block sm:hidden">
+                    Tax included and shipping <br />
+                    calculated at checkout
+                  </span>
+                  <span className="hidden sm:inline">
+                    Tax included and shipping calculated at checkout
+                  </span>
+                </p>
+
+                {/* Checkout Button aligned right */}
+                <button
+                  onClick={() => navigate("/checkout")}
+                  disabled={subtotal === 0}
+                  className={`text-xs sm:text-sm font-Futura-Light border-b border-white mt-2 sm:mt-0 ${
+                    subtotal === 0
+                      ? "opacity-50 cursor-not-allowed"
+                      : "opacity-80 hover:opacity-100"
+                  }`}>
+                  {subtotal === 0 ? "All items are out of stock" : "Checkout →"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

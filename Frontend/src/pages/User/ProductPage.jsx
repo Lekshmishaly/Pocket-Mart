@@ -34,10 +34,8 @@ function ProductPage() {
       const response = await axiosInstance.get(
         `/user/wishlist/${id}/${userData._id}`
       );
-      // console.log(`/user/wishlist/${id}/${userData._id}`);
-      setIsWishList(response.data.wishlistValue);
 
-      // console.log("wishlistValue", response.data.wishlistValue);
+      setIsWishList(response.data.wishlistValue);
     } catch (error) {
       console.error("Error checking wishlist:", error);
     }

@@ -24,50 +24,40 @@ function UserSidebar() {
     }
   }
   return (
-    <nav className="space-y-6">
-      <span
-        onClick={() => navigate("/profile/account")}
-        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
-        {" "}
-        Account
-      </span>
-      <span
-        onClick={() => navigate("/profile/saveditems")}
-        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
-        Saved Items
-      </span>
-      <span
-        onClick={() => navigate("/profile/orderhistory")}
-        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
-        {" "}
-        Order History
-      </span>
-      <span
-        onClick={() => navigate("/profile/addresses")}
-        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
-        Addresses
-      </span>
-      <span
-        onClick={() => navigate("/profile/wallet")}
-        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
-        My Wallet
-      </span>
-      <span
-        onClick={() => navigate("/profile/coupons")}
-        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
-        Coupons
-      </span>
-      <span
-        onClick={() => navigate("/profile/changepassword")}
-        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
-        Change Password
-      </span>
-      <span
-        onClick={handleUserLogout}
-        className="block cursor-pointer text-[#8b5d4b] hover:text-[#6d483a]  hover:border-b-[0.5px] hover:border-[#6d483a] transition-colors duration-200 text-sm font-Futura-Light">
-        Logout
-      </span>
-    </nav>
+    <div className="relative sm:static">
+      <nav className="flex overflow-x-auto sm:flex-col sm:space-y-6 space-x-6 sm:space-x-0 sm:overflow-visible px-4 sm:px-0 py-4 sm:py-0 hide-scrollbar-on-idle">
+        {[
+          { label: "Account", path: "/profile/account" },
+          { label: "Saved Items", path: "/profile/saveditems" },
+          { label: "Order History", path: "/profile/orderhistory" },
+          { label: "Addresses", path: "/profile/addresses" },
+          { label: "My Wallet", path: "/profile/wallet" },
+          { label: "Coupons", path: "/profile/coupons" },
+          { label: "Change Password", path: "/profile/changepassword" },
+          { label: "Logout", path: "logout" },
+        ].map((item) => (
+          <span
+            key={item.label}
+            onClick={() =>
+              item.path === "logout" ? handleUserLogout() : navigate(item.path)
+            }
+            className={`flex-shrink-0 px-2 cursor-pointer text-[#8b5d4b] transition-all duration-200 text-sm sm:text-base font-Futura-Light whitespace-nowrap
+    hover:text-[#6d483a]
+    hover:border-b-[0.5px] hover:border-[#6d483a]
+    sm:hover:border-none
+    ${
+      location.pathname === item.path
+        ? "font-semibold text-base sm:text-lg"
+        : ""
+    }`}>
+            {item.label}
+          </span>
+        ))}
+      </nav>
+      <div className="relative block sm:hidden">
+        <div className="absolute left-0 right-0 border-t border-[#e16939]" />
+      </div>{" "}
+    </div>
   );
 }
 

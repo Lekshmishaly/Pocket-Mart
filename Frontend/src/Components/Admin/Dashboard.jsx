@@ -55,7 +55,6 @@ export default function Dashboard() {
       setTotalProducts(response.data.TotalProducts || 0);
       setSalesChartData(response.data.salesChart || []);
       setBestSellingProducts(response.data.bestProducts || []);
-      console.log("products:::::::::>", response.data.bestProducts);
 
       setBestSellingCategories(response.data.bestCategory || []);
     } catch (err) {

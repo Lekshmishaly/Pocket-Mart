@@ -75,7 +75,7 @@ const SalesReport = () => {
     };
 
     fetchOrders();
-    console.log("filterType ------>", filterType);
+
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [startDate, endDate, filterType, currentPage]);
 

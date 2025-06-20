@@ -19,6 +19,7 @@ export default function ProductDetails({ product, isWishList, setreload }) {
   const [selectedZoomImage, setSelectedZoomImage] = useState("");
   const [activeImage, setActiveImage] = useState(0);
   const scrollContainerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   const [toggle, setToggle] = useState(false);
   const [error, setError] = useState({});
   const [averageRating, setAverageRating] = useState(0);
@@ -138,28 +139,41 @@ export default function ProductDetails({ product, isWishList, setreload }) {
   }
 
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
     checkCartStatus();
     fetchAverageRating();
     offers();
-    const handleScroll = () => {
-      if (!scrollContainerRef.current) return;
 
-      const { scrollTop, clientHeight } = scrollContainerRef.current;
-      const index = Math.round(scrollTop / clientHeight);
-      setActiveImage(
-        Math.min(
-          index,
-          Array.isArray(product.images) && product.images.length - 1
-        )
-      );
+    const scrollToImage = (index) => {
+      const container = scrollContainerRef.current;
+      if (!container || !container.children[index]) return;
+
+      const isMobile = window.innerWidth <= 1024;
+      const target = container.children[index];
+
+      if (isMobile) {
+        container.scrollTo({
+          left: target.offsetLeft,
+          behavior: "smooth",
+        });
+      } else {
+        container.scrollTo({
+          top: target.offsetTop,
+          behavior: "smooth",
+        });
+      }
     };
 
-    const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [selectedSize, product._id, checkCartStatus]); // Added checkCartStatus to dependencies
+    scrollToImage(activeImage);
+  }, [selectedSize, product._id, checkCartStatus, activeImage]);
 
   return (
     <div className="min-h-screen bg-[#f4ede3] flex flex-col lg:flex-row">
@@ -170,15 +184,22 @@ export default function ProductDetails({ product, isWishList, setreload }) {
         />
       )}
 
-      {/* Left side - Scrollable Images */}
+      {/* Scrollable Images */}
       <div
         ref={scrollContainerRef}
-        className="w-full lg:w-[60%] h-[60vh] lg:h-screen overflow-y-auto snap-y snap-mandatory scrollbar-hide">
+        className={`w-full lg:w-[60%] h-[60vh] lg:h-screen overflow-auto scrollbar-hide snap-mandatory ${
+          isMobile ? "flex snap-x" : "flex-col snap-y"
+        }`}
+        style={{ scrollBehavior: "smooth" }}>
         {Array.isArray(product.images) &&
           product.images.map((image, index) => (
             <div
               key={index}
-              className="h-full w-full snap-start snap-always relative">
+              className="h-full w-full flex-shrink-0 snap-start snap-always relative"
+              style={{
+                flexBasis: isMobile ? "100%" : "auto",
+                height: isMobile ? "100%" : "auto",
+              }}>
               <img
                 onClick={() => setSelectedZoomImage(image)}
                 src={image || "/placeholder.svg"}
@@ -190,45 +211,48 @@ export default function ProductDetails({ product, isWishList, setreload }) {
           ))}
       </div>
 
-      {/* Mobile Image Navigation */}
+      {/* Mobile Arrow Navigation */}
       <div className="lg:hidden absolute top-1/2 left-0 right-0 flex justify-between px-4 pointer-events-none">
         <button
           className="text-[#8b5d4b] hover:opacity-75 transition-opacity pointer-events-auto"
           aria-label="Previous image"
-          onClick={() => setActiveImage((prev) => Math.max(0, prev - 1))}>
+          onClick={() => {
+            const newIndex = Math.max(0, activeImage - 1);
+            setActiveImage(newIndex);
+          }}>
           <ChevronLeft className="w-8 h-8" />
         </button>
         <button
           className="text-[#8b5d4b] hover:opacity-75 transition-opacity pointer-events-auto"
           aria-label="Next image"
-          onClick={() =>
-            setActiveImage((prev) =>
-              Math.min(product.images.length - 1, prev + 1)
-            )
-          }>
+          onClick={() => {
+            const newIndex = Math.min(
+              product.images.length - 1,
+              activeImage + 1
+            );
+            setActiveImage(newIndex);
+          }}>
           <ChevronRight className="w-8 h-8" />
         </button>
       </div>
-
-      {console.log("Offer Price:", offerPrice)}
 
       {/* Right side - Product Details */}
       <div className="lg:w-[40%] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-8 lg:h-screen lg:overflow-y-auto scrollbar-hide">
         <div className="w-full max-w-md">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-xl mb-2 text-[#312f2d] font-thin leading-relaxed font-Futura-Light">
+              <h1 className="text-xl lg:text-lg max-[425px]:text-base max-[357px]:text-sm max-[325px]:text-xs mb-2 text-[#312f2d] font-thin leading-relaxed font-Futura-Light">
                 {product.name}
               </h1>
               <div className="flex items-center gap-2">
                 {typeof offerPrice === "number" && !isNaN(offerPrice) ? (
                   <>
                     {offerPrice !== product.price && (
-                      <span className="text-gray-500 line-through text-sm leading-relaxed font-Futura-Light">
+                      <span className="text-gray-500 line-through text-sm lg:text-xs max-[425px]:text-xs max-[357px]:text-[11px] leading-relaxed font-Futura-Light">
                         INR {product.price}
                       </span>
                     )}
-                    <span className="text-[#8b5d4b] leading-relaxed text-sm font-Futura-Light">
+                    <span className="text-[#8b5d4b] leading-relaxed text-sm lg:text-xs max-[425px]:text-xs max-[357px]:text-[11px] font-Futura-Light">
                       INR {Math.round(offerPrice).toFixed(2)}
                     </span>
                   </>
@@ -236,7 +260,7 @@ export default function ProductDetails({ product, isWishList, setreload }) {
               </div>
               <div>
                 {offerDiscountPercentage && (
-                  <p className="text-sm font-Futura-Light font-normal text-[#955238]">
+                  <p className="text-sm lg:text-xs max-[425px]:text-xs max-[357px]:text-[11px] font-Futura-Light font-normal text-[#955238]">
                     -{offerDiscountPercentage}%
                   </p>
                 )}
@@ -247,18 +271,18 @@ export default function ProductDetails({ product, isWishList, setreload }) {
               {isWishList ? (
                 <button
                   onClick={() => {
-                    handleRemoveWishlist(); // Remove from wishlist
+                    handleRemoveWishlist();
                   }}
                   className="transition-opacity">
-                  <Heart className="w-6 h-6 fill-[#733519] text-[#733519]" />
+                  <Heart className="w-6 h-6 lg:w-5 lg:h-5 max-[425px]:w-4 max-[425px]:h-4 fill-[#733519] text-[#733519]" />
                 </button>
               ) : (
                 <button
                   onClick={() => {
-                    handleWishlist(); // Add to wishlist
+                    handleWishlist();
                   }}
                   className="transition-opacity">
-                  <Heart className="w-6 h-6 fill-none text-[#733519] stroke-[#733519]" />
+                  <Heart className="w-6 h-6 lg:w-5 lg:h-5 max-[425px]:w-4 max-[425px]:h-4 fill-none text-[#733519] stroke-[#733519]" />
                 </button>
               )}
             </div>
@@ -270,7 +294,7 @@ export default function ProductDetails({ product, isWishList, setreload }) {
               {[...Array(5)].map((_, index) => (
                 <Star
                   key={index}
-                  className={`w-4 h-4 ${
+                  className={`w-4 h-4 lg:w-3.5 lg:h-3.5 max-[425px]:w-3 max-[425px]:h-3 ${
                     index < Math.round(averageRating)
                       ? "text-[#955238] fill-[#733519]"
                       : "text-[#ffffff]"
@@ -281,7 +305,7 @@ export default function ProductDetails({ product, isWishList, setreload }) {
                 />
               ))}
             </div>
-            <span className="ml-2 text-[#733519] text-sm font-Futura-Light">
+            <span className="ml-2 text-[#733519] text-sm lg:text-xs max-[425px]:text-[11px] font-Futura-Light">
               ({averageRating}/5)
             </span>
           </div>
@@ -298,22 +322,22 @@ export default function ProductDetails({ product, isWishList, setreload }) {
           </div>
           <div className="w-full text-right">
             {product.stocks !== 0 ? (
-              <span className="text-[#e07d6a] text-sm font-Futura-Light">
+              <span className="text-[#e07d6a] text-sm lg:text-xs max-[425px]:text-[11px] font-Futura-Light">
                 Total stock left: {product.stocks}
               </span>
             ) : (
-              <span className="text-[#e07d6a] text-sm font-Futura-Light">
+              <span className="text-[#e07d6a] text-sm lg:text-xs max-[425px]:text-[11px] font-Futura-Light">
                 Out of stock
               </span>
             )}
           </div>
+
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-4 mt-4">
             <button
               onClick={isExist ? () => navigate("/cart") : handleAddToCart}
-              className="w-full py-4 font-Futura-Light font-thin text-sm rounded bg-[#955238] hover:bg-[#713d28] text-white transition-colors"
-              disabled={product.stocks === 0} // Disable button if out of stock
-            >
+              className="w-full py-4 lg:py-3 max-[425px]:py-2 text-sm lg:text-xs max-[425px]:text-[11px] font-Futura-Light font-thin rounded bg-[#955238] hover:bg-[#713d28] text-white transition-colors"
+              disabled={product.stocks === 0}>
               {product.stocks === 0
                 ? "Out of Stock"
                 : isExist
@@ -321,15 +345,15 @@ export default function ProductDetails({ product, isWishList, setreload }) {
                 : "Add to Cart"}
             </button>
             <button
-              className="w-full py-4 font-Futura-Light font-thin text-sm bg-[#955238] hover:bg-[#713d28] text-white transition-colors rounded"
+              className="w-full py-4 lg:py-3 max-[425px]:py-2 text-sm lg:text-xs max-[425px]:text-[11px] font-Futura-Light font-thin bg-[#955238] hover:bg-[#713d28] text-white transition-colors rounded"
               disabled={product.stocks === 0}>
-              {product.stocks !== 0 ? "  Buy it now" : "out of stock"}
+              {product.stocks !== 0 ? "Buy it now" : "Out of stock"}
             </button>
           </div>
 
           {/* Product Description */}
           <div className="mt-10">
-            <p className="text-[#8b5d4b] text-sm font-thin leading-relaxed font-Futura-Light">
+            <p className="text-[#8b5d4b] text-sm lg:text-xs max-[425px]:text-[11px] font-thin leading-relaxed font-Futura-Light">
               {product.description || ""}
             </p>
           </div>
@@ -338,12 +362,14 @@ export default function ProductDetails({ product, isWishList, setreload }) {
           <div className="mt-8">
             <button
               onClick={() => setToggle(!toggle)}
-              className="text-[#8b5d4b] text-thin font-thin leading-relaxed font-Futura-Light flex items-center justify-between w-full">
+              className="text-[#8b5d4b] text-sm lg:text-xs max-[425px]:text-[11px] font-thin leading-relaxed font-Futura-Light flex items-center justify-between w-full">
               <span>Product details</span>
-              <span className="font-bold text-lg">{toggle ? "-" : "+"}</span>
+              <span className="font-bold text-lg lg:text-base max-[425px]:text-sm">
+                {toggle ? "-" : "+"}
+              </span>
             </button>
             {toggle && (
-              <div className="mt-4 text-[#8b5d4b] text-sm font-thin leading-relaxed font-Futura-Light">
+              <div className="mt-4 text-[#8b5d4b] text-sm lg:text-xs max-[425px]:text-[11px] font-thin leading-relaxed font-Futura-Light">
                 {product.additionalInfo || ""}
               </div>
             )}

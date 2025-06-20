@@ -9,50 +9,46 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       <button
         key={1}
         onClick={() => onPageChange(1)}
-        className={`px-3 py-1 rounded-md font-semibold ${
+        className={`px-3 py-1 rounded-md font-semibold text-xs sm:text-sm ${
           currentPage === 1 ? "bg-[#e07d6a] text-white" : "text-gray-500"
         }`}>
         1
       </button>
     );
 
-    // Show dots if currentPage > 3
     if (currentPage > 3) {
       pages.push(
-        <span key="start-dots" className="px-2 text-gray-500">
+        <span key="start-dots" className="px-2 text-gray-500 text-sm">
           ...
         </span>
       );
     }
 
-    // Show current page if it's not first or last
     if (currentPage !== 1 && currentPage !== totalPages) {
       pages.push(
         <button
           key={currentPage}
           onClick={() => onPageChange(currentPage)}
-          className="px-3 py-1 rounded-md font-semibold bg-[#e07d6a] text-white">
+          className="px-3 py-1 rounded-md font-semibold bg-[#e07d6a] text-white text-xs sm:text-sm">
           {currentPage}
         </button>
       );
     }
 
-    // Show dots before last page if currentPage < totalPages - 2
     if (currentPage < totalPages - 2) {
       pages.push(
-        <span key="end-dots" className="px-2 text-gray-500">
+        <span key="end-dots" className="px-2 text-gray-500 text-sm">
           ...
         </span>
       );
     }
 
-    // Show last page if it's not the same as first
     if (totalPages > 1) {
       pages.push(
         <button
           key={totalPages}
           onClick={() => onPageChange(totalPages)}
-          className={`px-3 py-1 rounded-md font-semibold ${
+          className={`px-3 py-1 rounded-md font-semibold text-xs sm:text-sm ${
             currentPage === totalPages
               ? "bg-[#e07d6a] text-white"
               : "text-gray-500"
@@ -66,12 +62,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   };
 
   return (
-    <div className="px-4 py-3 flex justify-center">
-      <div className="flex items-center gap-2">
+    <div className="w-full px-2 py-4 flex justify-center">
+      <div className="flex flex-wrap items-center gap-1 sm:gap-2">
         {currentPage > 1 && (
           <button
             onClick={() => onPageChange(currentPage - 1)}
-            className="px-2 text-xl font-bold text-gray-500">
+            className="px-2 text-lg sm:text-xl font-bold text-gray-500">
             «
           </button>
         )}
@@ -81,7 +77,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         {currentPage < totalPages && (
           <button
             onClick={() => onPageChange(currentPage + 1)}
-            className="px-2 text-xl font-bold text-gray-500">
+            className="px-2 text-lg sm:text-xl font-bold text-gray-500">
             »
           </button>
         )}

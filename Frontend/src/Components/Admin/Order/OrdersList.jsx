@@ -236,164 +236,172 @@ function OrdersPage() {
             </thead>
             <tbody className="divide-y divide-gray-400">
               {Array.isArray(orders) &&
-                orders.map((order) => (
-                  <React.Fragment key={order._id}>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        {order.order_id}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        {new Date(order.placed_at).toLocaleString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                          hour12: true,
-                        })}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        {order.user.firstname} {order.user.lastname}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">
-                        ₹{order.total_amount.toFixed(2)}
-                      </td>
-                      <td className="px-4 py-4 text-sm">
-                        {order.isReturnReq && (
-                          <Button
-                            onClick={() => toggleOrderExpansion(order._id)}
-                            variant="ghost"
-                            size="icon"
-                            className="text-amber-500 hover:text-amber-600 hover:bg-amber-100 transition-colors">
-                            <AlertCircle
-                              size={18}
-                              className={`transition-transform ${
-                                expandedOrder === order._id ? "scale-110" : ""
-                              }`}
-                            />
-                            <span className="sr-only">
-                              Toggle return request details
-                            </span>
-                          </Button>
-                        )}
-                        <button
-                          onClick={() =>
-                            setExpandedOrder(
-                              expandedOrder === order._id ? null : order._id
-                            )
-                          }
-                          className="text-[#e07d6a] hover:text-[#9c4f3f] transition-colors">
-                          {expandedOrder === order._id
-                            ? "Hide Details ⇧ "
-                            : "Show Details ⇩ "}
-                        </button>
-                      </td>
-                    </tr>
-                    {expandedOrder === order._id && (
-                      <tr>
-                        <td colSpan="5" className="px-4 py-4">
-                          <table className="w-full">
-                            <thead>
-                              <tr className="bg-gray-100">
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
-                                  Product Name
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
-                                  Quantity
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
-                                  Price
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
-                                  Total Price
-                                </th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
-                                  Status
-                                </th>
-                                {order.isReturnReq && (
-                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
-                                    Return
-                                  </th>
-                                )}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {Array.isArray(order.order_items) &&
-                                order.order_items.map((item, index) => (
-                                  <tr
-                                    key={`${order._id}-${index}`}
-                                    className="hover:bg-gray-50">
-                                    <td className="px-4 py-2 text-sm text-gray-500">
-                                      {item.productId.name}
-                                    </td>
-                                    <td className="px-4 py-2 text-sm text-gray-500">
-                                      {item.qty}
-                                    </td>
-                                    <td className="px-4 py-2 text-sm text-gray-500">
-                                      ₹{item.productId.price}
-                                    </td>
-                                    <td className="px-4 py-2 text-sm text-gray-500">
-                                      ₹{item.total_price}
-                                    </td>
-                                    <td className="px-4 py-2 text-sm">
-                                      <select
-                                        value={item.order_status}
-                                        onChange={(e) => {
-                                          setSelectedStatus({
-                                            orderId: order.order_id,
-                                            itemId: item._id,
-                                            newStatus: e.target.value,
-                                          });
-                                          setShowConfirmation(true);
-                                        }}
-                                        className={`mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e07d6a] focus:border-[#e07d6a] sm:text-sm ${getStatusColor(
-                                          item.order_status
-                                        )}`}>
-                                        {/* Disabled current status */}
-                                        <option
-                                          value={item.order_status}
-                                          disabled>
-                                          {item.order_status}
-                                        </option>
-
-                                        {/* Dynamically render available options */}
-                                        {getAvailableOptions(
-                                          item.order_status
-                                        ).map((status) => (
-                                          <option key={status} value={status}>
-                                            {status}
-                                          </option>
-                                        ))}
-                                      </select>
-                                    </td>
-                                    {item.return_request &&
-                                      item.return_request.status ===
-                                        "Pending" && (
-                                        <td className="px-3 py-2 whitespace-nowrap text-xs sm:text-sm">
-                                          <button
-                                            onClick={() => {
-                                              handleReturnReq(
-                                                order._id,
-                                                item._id,
-                                                item.return_request.reason,
-                                                item.return_request.explanation
-                                              );
-                                            }}
-                                            className={`mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm bg-yellow-200 hover:scale-105 hover:bg-yellow-300`}>
-                                            Pending Request
-                                          </button>
-                                        </td>
-                                      )}
-                                  </tr>
-                                ))}
-                            </tbody>
-                          </table>
+                orders
+                  .filter(
+                    (order) =>
+                      Array.isArray(order.order_items) &&
+                      order.order_items.some(
+                        (item) => item.payment_status !== "Failed"
+                      )
+                  )
+                  .map((order) => (
+                    <React.Fragment key={order._id}>
+                      <tr className="hover:bg-gray-50">
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          {order.order_id}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          {new Date(order.placed_at).toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                            hour12: true,
+                          })}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          {order.user.firstname} {order.user.lastname}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          ₹{order.total_amount.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-4 text-sm">
+                          {order.isReturnReq && (
+                            <Button
+                              onClick={() => toggleOrderExpansion(order._id)}
+                              variant="ghost"
+                              size="icon"
+                              className="text-amber-500 hover:text-amber-600 hover:bg-amber-100 transition-colors">
+                              <AlertCircle
+                                size={18}
+                                className={`transition-transform ${
+                                  expandedOrder === order._id ? "scale-110" : ""
+                                }`}
+                              />
+                              <span className="sr-only">
+                                Toggle return request details
+                              </span>
+                            </Button>
+                          )}
+                          <button
+                            onClick={() =>
+                              setExpandedOrder(
+                                expandedOrder === order._id ? null : order._id
+                              )
+                            }
+                            className="text-[#e07d6a] hover:text-[#9c4f3f] transition-colors">
+                            {expandedOrder === order._id
+                              ? "Hide Details ⇧ "
+                              : "Show Details ⇩ "}
+                          </button>
                         </td>
                       </tr>
-                    )}
-                  </React.Fragment>
-                ))}
+
+                      {/* Expanded Order Items */}
+                      {expandedOrder === order._id && (
+                        <tr>
+                          <td colSpan="5" className="px-4 py-4">
+                            <table className="w-full">
+                              <thead>
+                                <tr className="bg-gray-100">
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                                    Product Name
+                                  </th>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                                    Quantity
+                                  </th>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                                    Price
+                                  </th>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                                    Total Price
+                                  </th>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                                    Status
+                                  </th>
+                                  {order.isReturnReq && (
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">
+                                      Return
+                                    </th>
+                                  )}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Array.isArray(order.order_items) &&
+                                  order.order_items.map((item, index) => (
+                                    <tr
+                                      key={`${order._id}-${index}`}
+                                      className="hover:bg-gray-50">
+                                      <td className="px-4 py-2 text-sm text-gray-500">
+                                        {item.productId.name}
+                                      </td>
+                                      <td className="px-4 py-2 text-sm text-gray-500">
+                                        {item.qty}
+                                      </td>
+                                      <td className="px-4 py-2 text-sm text-gray-500">
+                                        ₹{item.productId.price}
+                                      </td>
+                                      <td className="px-4 py-2 text-sm text-gray-500">
+                                        ₹{item.total_price}
+                                      </td>
+                                      <td className="px-4 py-2 text-sm">
+                                        <select
+                                          value={item.order_status}
+                                          onChange={(e) => {
+                                            setSelectedStatus({
+                                              orderId: order.order_id,
+                                              itemId: item._id,
+                                              newStatus: e.target.value,
+                                            });
+                                            setShowConfirmation(true);
+                                          }}
+                                          className={`mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e07d6a] focus:border-[#e07d6a] sm:text-sm ${getStatusColor(
+                                            item.order_status
+                                          )}`}>
+                                          <option
+                                            value={item.order_status}
+                                            disabled>
+                                            {item.order_status}
+                                          </option>
+                                          {getAvailableOptions(
+                                            item.order_status
+                                          ).map((status) => (
+                                            <option key={status} value={status}>
+                                              {status}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </td>
+                                      {item.return_request &&
+                                        item.return_request.status ===
+                                          "Pending" && (
+                                          <td className="px-3 py-2 whitespace-nowrap text-xs sm:text-sm">
+                                            <button
+                                              onClick={() => {
+                                                handleReturnReq(
+                                                  order._id,
+                                                  item._id,
+                                                  item.return_request.reason,
+                                                  item.return_request
+                                                    .explanation
+                                                );
+                                              }}
+                                              className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm bg-yellow-200 hover:scale-105 hover:bg-yellow-300">
+                                              Pending Request
+                                            </button>
+                                          </td>
+                                        )}
+                                    </tr>
+                                  ))}
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
             </tbody>
           </table>
           {orders.length == 0 && (
