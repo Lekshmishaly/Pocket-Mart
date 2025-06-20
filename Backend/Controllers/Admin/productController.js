@@ -18,7 +18,10 @@ async function addProduct(req, res) {
     if (isExist) {
       return res
         .status(401)
-        .json({ success: false, message: "This Product is already Added" });
+        .json({
+          success: false,
+          message: "This Product is already Added ddddddd",
+        });
     }
 
     const stocks = sizes.reduce((sum, cur) => (sum += cur.stock), 0);
