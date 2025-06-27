@@ -333,21 +333,16 @@ export default function ProductDetails({ product, isWishList, setreload }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="w-full mt-4">
             <button
               onClick={isExist ? () => navigate("/cart") : handleAddToCart}
-              className="w-full py-4 lg:py-3 max-[425px]:py-2 text-sm lg:text-xs max-[425px]:text-[11px] font-Futura-Light font-thin rounded bg-[#955238] hover:bg-[#713d28] text-white transition-colors"
+              className="w-full py-3 sm:py-3 max-[425px]:py-2 text-sm sm:text-sm max-[425px]:text-xs font-Futura-Light font-thin rounded bg-[#955238] hover:bg-[#713d28] text-white transition-colors disabled:opacity-50"
               disabled={product.stocks === 0}>
               {product.stocks === 0
                 ? "Out of Stock"
                 : isExist
                 ? "Go to Cart"
                 : "Add to Cart"}
-            </button>
-            <button
-              className="w-full py-4 lg:py-3 max-[425px]:py-2 text-sm lg:text-xs max-[425px]:text-[11px] font-Futura-Light font-thin bg-[#955238] hover:bg-[#713d28] text-white transition-colors rounded"
-              disabled={product.stocks === 0}>
-              {product.stocks !== 0 ? "Buy it now" : "Out of stock"}
             </button>
           </div>
 
